@@ -1,0 +1,32 @@
+{
+  "name": "pokemon-api-beginner",
+  "version": "1.0.0",
+  "description": "A beginner TypeScript + Express API project using PokeAPI stats and types.",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "keywords": [
+    "typescript",
+    "express",
+    "pokeapi",
+    "pokemon",
+    "rest-api"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "ky": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
