@@ -1,0 +1,246 @@
+{
+  "id": "eb0a62b2-8276-44e3-b350-3c6441e2e57d",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.battle_history": {
+      "name": "battle_history",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "battle_history_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "pokemon1_id": {
+          "name": "pokemon1_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon2_id": {
+          "name": "pokemon2_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result": {
+          "name": "result",
+          "type": "battle_result",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "decided_by": {
+          "name": "decided_by",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon1_score": {
+          "name": "pokemon1_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon2_score": {
+          "name": "pokemon2_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon1_multiplier": {
+          "name": "pokemon1_multiplier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon2_multiplier": {
+          "name": "pokemon2_multiplier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fought_at": {
+          "name": "fought_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "battle_history_fought_at_idx": {
+          "name": "battle_history_fought_at_idx",
+          "columns": [
+            {
+              "expression": "fought_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "battle_history_pokemon1_idx": {
+          "name": "battle_history_pokemon1_idx",
+          "columns": [
+            {
+              "expression": "pokemon1_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "battle_history_pokemon2_idx": {
+          "name": "battle_history_pokemon2_idx",
+          "columns": [
+            {
+              "expression": "pokemon2_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "battle_history_pokemon1_id_pokemon_id_fk": {
+          "name": "battle_history_pokemon1_id_pokemon_id_fk",
+          "tableFrom": "battle_history",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon1_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "battle_history_pokemon2_id_pokemon_id_fk": {
+          "name": "battle_history_pokemon2_id_pokemon_id_fk",
+          "tableFrom": "battle_history",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon2_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pokemon": {
+      "name": "pokemon",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stats": {
+          "name": "stats",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "types": {
+          "name": "types",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_relations": {
+          "name": "type_relations",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cached_at": {
+          "name": "cached_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "pokemon_name_unique": {
+          "name": "pokemon_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.battle_result": {
+      "name": "battle_result",
+      "schema": "public",
+      "values": [
+        "POKEMON1_WIN",
+        "POKEMON2_WIN",
+        "TIE"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

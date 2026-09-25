@@ -1,32 +1,25 @@
 {
-  "name": "pokemon-api-beginner",
-  "version": "1.0.0",
-  "description": "A beginner TypeScript + Express API project using PokeAPI stats and types.",
-  "main": "dist/server.js",
+  "name": "pokemon-api-hono-drizzle",
+  "version": "2.0.0",
+  "private": true,
+  "module": "src/server.ts",
   "scripts": {
-    "dev": "tsx src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "dev": "bun --hot src/server.ts",
+    "start": "bun src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
   },
-  "keywords": [
-    "typescript",
-    "express",
-    "pokeapi",
-    "pokemon",
-    "rest-api"
-  ],
-  "license": "MIT",
   "dependencies": {
-    "express": "^5.1.0",
-    "ky": "^2.1.0"
+    "drizzle-orm": "^0.44.0",
+    "hono": "^4.0.0",
+    "ky": "^2.1.0",
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.3.0",
-    "tsx": "^4.20.5",
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.0",
     "typescript": "^5.9.2"
-  },
-  "allowScripts": {
-    "esbuild@0.28.2": true
   }
 }
