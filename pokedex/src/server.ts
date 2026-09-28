@@ -61,12 +61,18 @@ async function getTypeFromPokeApi(identifier: string): Promise<ApiType> {
 // that is what makes the pokemon table a cache and avoids unnecessary repeated network requests
 async function findOrCachePokemon(identifier: string): Promise<CachedPokemon> {
     // A name or numeric PokeAPI ID can identify the same Pokemon in our cache.
-    const numericId = /^[1-9]\d*$/.test(identifier) ? Number(identifier) : null;
+    const numericId = /^[1-9]\d*$/.test(identifier) ? Number(identifier) : null; // TODO: regular expression unnecessary, try something else so its more readable to other devs
     // db.select() builds a SQL SELECT through drizzle instead of us writing raw SQL
     // the where condition supports either a pokemon name or a numeric pokeapi id
     // limit(1) is enough because both the id and name identify a unique pokemon
-    const existing = await db.select().from(pokemon).where(
-        numericId === null ? eq(pokemon.name, identifier) : or(eq(pokemon.id, numericId), eq(pokemon.name, identifier))
+    
+    const existing = await db
+        .select()
+        .from(pokemon)
+        .where(
+            numericId === null
+             ? eq(pokemon.name, identifier)
+              : or(eq(pokemon.id, numericId), eq(pokemon.name, identifier)) // TODO: `, eq(pokemon.name, identifier))` is unnecessary
     ).limit(1);
     // drizzle returns matching rows as an array, so index 0 is the first match
     // if it exists we can return immediately without contacting pokeapi at all
@@ -103,9 +109,16 @@ async function findOrCachePokemon(identifier: string): Promise<CachedPokemon> {
     }).onConflictDoNothing().returning();
     // normally the insert succeeds and we return that new database row
     if (inserted[0]) return inserted[0];
-    const cached = await db.select().from(pokemon).where(eq(pokemon.id, apiPokemon.id)).limit(1);
+
+    /// TODO: Not necessary because already handled
+    const cached = await db
+        .select()
+        .from(pokemon)
+        .where(eq(pokemon.id, apiPokemon.id))
+    .limit(1);
     if (!cached[0]) throw new Error("Pokemon could not be loaded from the database.");
     return cached[0];
+    /// TODO
 }
 
 // this compares the attacker's cached type chart against the defender's types
@@ -176,6 +189,16 @@ app.get("/fight", async (c) => {
     // c.req.query reads values from the url query string after the ?
     const first = normalizeIdentifier(c.req.query("pokemon1"));
     const second = normalizeIdentifier(c.req.query("pokemon2"));
+
+    /** TODO: advisor change to incorporate
+     * 
+     * const first_poke = Number(first);
+     * const second_poke = Number(second);
+     * 
+     * if (isNaN(first_poke) || isNaN(second_poke)) {
+     *     throw new HTTPException(400, { message: "One of the pokemons is not a number"})};
+     */
+
     // reject the request with HTTP 400 when either required parameter is missing
     // 400 means the client sent a request that does not meet the endpoint's requirements
     if (!first || !second) {
@@ -237,6 +260,7 @@ app.get("/fight", async (c) => {
 
     // the response makes it clear that this is our own simplified scoring rule
     const note = "This is a simple learning rule based on base stats and type effectiveness, not the official Pokemon battle system.";
+    /// TODO: could be switch case instead
     if (result === "TIE") {
         return c.json({ battleId: record.id,
             pokemon1: displayPokemon(pokemon1, battle1, "TIE"),
@@ -250,6 +274,7 @@ app.get("/fight", async (c) => {
     return c.json({ battleId: record.id,
         winner: displayPokemon(pokemon2, battle2, "WIN"),
         loser: displayPokemon(pokemon1, battle1, "LOSE"), decidedBy, note });
+    /// TODO
 });
 
 // GET /battles reads previously saved fights from postgresql rather than calling pokeapi
@@ -293,6 +318,7 @@ app.get("/battles", async (c) => {
 // GET /search-by-type?type=water
 // unlike /fight, this endpoint does not use our pokemon cache
 // it asks pokeapi's type endpoint for the current list, extracts just the pokemon names, sorts them, and returns json
+/// TODO: this should be gotten from the database
 app.get("/search-by-type", async (c) => {
     const type = normalizeIdentifier(c.req.query("type"));
     if (!type) return c.json({ error: "Provide a Pokemon type using ?type=fire" }, 400);
@@ -300,6 +326,7 @@ app.get("/search-by-type", async (c) => {
     const names = data.pokemon.map((entry) => entry.pokemon.name).sort((a, b) => a.localeCompare(b));
     return c.json({ type: data.name, count: names.length, pokemon: names });
 });
+/// TODO
 
 // if no route above matches the requested path, return a normal HTTP 404 json response instead of an html error page
 app.notFound((c) => c.json({ error: "Not Found" }, 404));
