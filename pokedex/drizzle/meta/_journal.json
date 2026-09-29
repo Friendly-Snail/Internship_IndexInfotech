@@ -8,6 +8,48 @@
       "when": 1790338763262,
       "tag": "0000_fantastic_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790662749082,
+      "tag": "0001_hard_mikhail_rasputin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790667552705,
+      "tag": "0002_needy_kitty_pryde",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790667557188,
+      "tag": "0003_crazy_longshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790670222321,
+      "tag": "0004_white_prima",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790670324903,
+      "tag": "0005_puzzling_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790678442797,
+      "tag": "0006_abandoned_the_enforcers",
+      "breakpoints": true
     }
   ]
 }
