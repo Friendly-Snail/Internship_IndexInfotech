@@ -1,219 +1,103 @@
 # Pokémon API
 > Rawindhya Hettiarachchi
 
-A small TypeScript API built with Bun, Hono, Drizzle ORM, PostgreSQL,
-and PokeAPI. The project lets you compare two Pokémon in a simplified
-battle, search for Pokémon by type, and view saved battle history.
+A small Pokémon API built with Bun, Hono, TypeScript, Drizzle, PostgreSQL, and PokeAPI. Battles use my own simple scoring rule based on base stats and type effectiveness, not the official Pokémon battle system.
 
-The battle system is a custom learning rule based on Pokémon base stats
-and type effectiveness. It is not the official Pokémon battle system (duh).
+## What's new in this iteration
 
-## Features
+- Pokémon stats, types, and type matchups live in separate database tables. A Pokémon can have multiple types, and the matchup table records which attacking types are strong or weak against defending types.
+- `POST /fight` accepts two equally sized teams of 1–4 Pokémon. Pokémon in matching positions face each other; their scores are added to decide the winning team or a tie. Every participant and score is saved with the battle.
+- Zod validates the JSON fight request before the route processes it. `/battles` reads saved fights, including older one-on-one fights.
+- Pokémon encounter areas connect to regions. `/search-by-region?region=kanto` and `/search-by-type?type=water` search Pokémon currently cached in the database, so they may not show every Pokémon in PokeAPI.
+- `/pokemon/pikachu` shows stats, types, weaknesses, and example scores; `/pokemon/pikachu/regions` checks its encounter regions. `/types` and `/regions` list the available names.
+- Migrations `0000` through `0006` build and change the database step by step. The latest migration stores type multipliers as decimals such as `2.00` and `0.50`. Battle history displays dates in UTC.
 
--   `GET /fight` compares two Pokémon and returns a winner, loser, or
-    tie
--   `GET /search-by-type` returns Pokémon that belong to a requested
-    type
--   `GET /battles` returns previously completed battles
--   Pokémon used in battles are cached in PostgreSQL so the program does
-    not need to request the same data from PokeAPI every time
--   completed battles are saved in PostgreSQL
+## Run the project
 
-## How It Works
+Set `DATABASE_URL` in `.env` to PostgreSQL database (for example, `pokedex_migrations`). Then run:
 
-The server is written in TypeScript and uses Hono to handle HTTP
-requests.
-
-For a fight, the program first checks the local PostgreSQL database for
-each Pokémon. If a Pokémon has already been cached, its saved data is
-reused. If it is not in the database, the server requests its stats,
-types, and type-effectiveness information from PokeAPI and saves that
-information locally.
-
-The program then calculates a simplified battle score using total base
-stats and type effectiveness. If the battle scores are equal, total
-stats and then speed are used as tiebreakers. If those are also equal,
-the battle is recorded as a tie.
-
-Drizzle ORM is used to communicate with PostgreSQL from TypeScript. The
-database contains a `pokemon` table for cached Pokémon data and a
-`battle_history` table for completed fights.
-
-## Requirements
-
-Before running the project, install:
-
--   Bun
--   PostgreSQL
-
-Create a PostgreSQL database named:
-
-``` text
-pokedex
-```
-
-## Setup
-
-Install the project dependencies:
-
-``` powershell
+```powershell
 bun install
-```
-
-Create your local `.env` file from the example:
-
-``` powershell
-Copy-Item .env.example .env
-```
-
-Update `.env` with your PostgreSQL password:
-
-``` env
-DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/pokedex
-PORT=3000
-```
-
-Do not commit the real `.env` file because it contains your database
-credentials.
-
-Generate the database migration:
-
-``` powershell
-bun run db:generate
-```
-
-Apply the migration to PostgreSQL:
-
-``` powershell
 bun run db:migrate
-```
-
-## Running the Program
-
-Start the development server:
-
-``` powershell
 bun run dev
 ```
 
-The API will normally run at:
+Visit `http://localhost:3000/` to see the route examples. When changing the database schema later, use `bun run db:generate`, inspect the new SQL, and then run `bun run db:migrate`. You can check the code with `bun run typecheck`, `bun run lint`, `bun run format:check`, and `bun run test`.
 
-``` text
-http://localhost:3000
+## `Promise.all` and `Promise.allSettled`
+
+Both combine multiple asynchronous operations and wait for their outcomes:
+
+- `Promise.all([...])` returns all results in order if every operation succeeds. If any one fails, the combined promise rejects. We use it when a fight needs all Pokémon and their type data to calculate a valid result.
+- `Promise.allSettled([...])` waits for every operation even if some fail. It returns an outcome for each one (`fulfilled` or `rejected`). Use it when partial success is useful and you want to handle individual failures.
+
+`Promise.all` rejecting does **not** cancel the other requests that already started. It means the caller cannot use the combined result as a complete set.
+
+## Reset Database
+
+Run this in pgAdmin's Query Tool while connected to the project database. **This removes cached Pokémon and saved battles**, but keeps the table structure and Drizzle migration history.
+
+```sql
+TRUNCATE TABLE
+  public.pokemon_encounter,
+  public.encounter_area,
+  public.region,
+  public.type_matchup,
+  public.pokemon_type,
+  public.pokemon_stat,
+  public.pokemon_element_type,
+  public.battle_participant,
+  public.battle_history,
+  public.pokemon
+RESTART IDENTITY;
 ```
 
-The terminal also prints example endpoint URLs when the server starts.
+Confirm the reset:
 
-To stop the server, press:
-
-``` text
-Ctrl + C
+```sql
+SELECT
+  (SELECT count(*) FROM public.battle_participant) AS participants,
+  (SELECT count(*) FROM public.battle_history) AS battles,
+  (SELECT count(*) FROM public.pokemon) AS cached_pokemon,
+  (SELECT count(*) FROM public.pokemon_stat) AS stats,
+  (SELECT count(*) FROM public.pokemon_type) AS pokemon_types,
+  (SELECT count(*) FROM public.type_matchup) AS matchups,
+  (SELECT count(*) FROM public.pokemon_encounter) AS encounters,
+  (SELECT count(*) FROM public.region) AS regions;
 ```
 
-## Endpoints
+All counts should be 0 if successful.
 
-### Fight
+## Example fight scripts
 
-``` text
-GET /fight?pokemon1=squirtle&pokemon2=charmander
+Run these in PowerShell while `bun run dev` is running.
+
+### 1v1
+
+```powershell
+$body = @{
+    team1 = @("pikachu")
+    team2 = @("geodude")
+} | ConvertTo-Json -Depth 4
+
+Invoke-RestMethod `
+    -Uri "http://localhost:3000/fight" `
+    -Method Post `
+    -ContentType "application/json" `
+    -Body $body | ConvertTo-Json -Depth 8
 ```
 
-Example:
+### 2v2
 
-``` text
-http://localhost:3000/fight?pokemon1=squirtle&pokemon2=charmander
+```powershell
+$body = @{
+    team1 = @("pikachu", "bulbasaur")
+    team2 = @("squirtle", "charmander")
+} | ConvertTo-Json -Depth 4
+
+Invoke-RestMethod `
+    -Uri "http://localhost:3000/fight" `
+    -Method Post `
+    -ContentType "application/json" `
+    -Body $body | ConvertTo-Json -Depth 8
 ```
-
-This endpoint loads or caches both Pokémon, calculates the battle
-result, saves the battle to PostgreSQL, and returns the result as JSON.
-
-### Search by Type
-
-``` text
-GET /search-by-type?type=water
-```
-
-Example:
-
-``` text
-http://localhost:3000/search-by-type?type=water
-```
-
-This endpoint requests type information from PokeAPI and returns an
-alphabetical list of Pokémon belonging to that type.
-
-### Battle History
-
-``` text
-GET /battles
-```
-
-Example:
-
-``` text
-http://localhost:3000/battles
-```
-
-This endpoint reads the saved battle records from PostgreSQL and returns
-them as JSON.
-
-## Main Files
-
--   `src/server.ts` contains the API routes, PokeAPI communication,
-    caching logic, battle calculations, and error handling
--   `src/db/schema.ts` defines the PostgreSQL tables, columns, keys,
-    relations, and indexes
--   `src/db/index.ts` creates the Drizzle/PostgreSQL database connection
--   `drizzle.config.ts` contains the Drizzle migration configuration
--   `.env` contains local database connection settings and is not
-    committed to Git
-
-## Useful Commands
-
-``` powershell
-bun run dev
-```
-
-Runs the development server with hot reloading.
-
-``` powershell
-bun run start
-```
-
-Runs the server normally.
-
-``` powershell
-bun run typecheck
-```
-
-Checks the TypeScript code for type errors.
-
-``` powershell
-bun run db:generate
-```
-
-Generates migration files from the Drizzle schema.
-
-``` powershell
-bun run db:migrate
-```
-
-Applies generated migrations to PostgreSQL.
-
-## Technical Summary
-
-The main flow of the project is:
-
-``` text
-client request
-→ Hono route
-→ PostgreSQL lookup
-→ PokeAPI request if data is missing
-→ battle or search logic
-→ PostgreSQL storage when needed
-→ JSON response
-```
-
-Bun runs the TypeScript application, Hono handles the API routes, Ky
-sends HTTP requests to PokeAPI, Drizzle provides type-safe database
-queries, and PostgreSQL stores cached Pokémon and battle history.
