@@ -2,6 +2,7 @@
 // drizzle uses these definitions both for type-safe queries in the app and for generating database migrations
 import { relations } from "drizzle-orm";
 import { sql } from "drizzle-orm";
+import { user } from "./auth-schema";
 import {
   check,
   integer,
@@ -9,23 +10,12 @@ import {
   pgEnum,
   pgTable,
   timestamp,
+  text,
   unique,
   varchar,
   index,
   primaryKey,
 } from "drizzle-orm/pg-core";
-
-// pokeapi's type chart tells us which defending types receive double, half, or zero damage
-// this describes the api response before its values are saved as matchup rows
-export type TypeRelations = {
-  doubleDamageTo: string[];
-  halfDamageTo: string[];
-  noDamageTo: string[];
-};
-
-// Record<string, number> means "an object whose property names are strings and whose values are numbers"
-// in practice this holds keys such as hp, attack, defense, special-attack, special-defense, and speed
-export type PokemonStats = Record<string, number>;
 
 // the pokemon table is the local cache of data originally retrieved from pokeapi
 // one row represents one pokemon and lets repeated fights use postgresql instead of making the same external api requests again
@@ -35,6 +25,13 @@ export const pokemon = pgTable("pokemon", {
   id: integer("id").primaryKey(), // pokeapi pokemon id: stable external identifier
   // varchar stores text, notNull makes the value required, and unique prevents duplicate pokemon names
   name: varchar("name", { length: 255 }).notNull().unique(),
+  // all Pokemon share these six fixed base stats
+  hp: integer("hp").notNull(),
+  attack: integer("attack").notNull(),
+  defense: integer("defense").notNull(),
+  specialAttack: integer("special_attack").notNull(),
+  specialDefense: integer("special_defense").notNull(),
+  speed: integer("speed").notNull(),
   // postgres automatically records when the pokemon was first cached
   // withTimezone keeps the timestamp unambiguous across machines in different time zones
   cachedAt: timestamp("cached_at", { withTimezone: true }).defaultNow().notNull(),
@@ -42,24 +39,46 @@ export const pokemon = pgTable("pokemon", {
   regionsCachedAt: timestamp("regions_cached_at", { withTimezone: true }),
 });
 
-// each stat has its own row so we can compare hp, speed, and other stats in sql
-// the pair of pokemon id and stat name is the primary key because each pokemon has one value per stat
-export const pokemonStat = pgTable(
-  "pokemon_stat",
+// one entry per trainer and Pokemon species; this is ownership, not another Pokemon cache
+export const pokedex = pgTable(
+  "pokedex",
   {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     pokemonId: integer("pokemon_id")
       .notNull()
       .references(() => pokemon.id),
-    statName: varchar("stat_name", { length: 100 }).notNull(),
-    baseStat: integer("base_stat").notNull(),
+    addedAt: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.pokemonId, table.statName] })],
+  (table) => [
+    primaryKey({ columns: [table.userId, table.pokemonId] }),
+    index("pokedex_pokemon_id_idx").on(table.pokemonId),
+  ],
 );
+
+export const pokedexRelations = relations(pokedex, ({ one }) => ({
+  trainer: one(user, { fields: [pokedex.userId], references: [user.id] }),
+  pokemon: one(pokemon, { fields: [pokedex.pokemonId], references: [pokemon.id] }),
+}));
 
 // one row per distinct pokemon type, shared by pokemon and matchup rows
 export const pokemonElementType = pgTable("pokemon_element_type", {
   name: varchar("name", { length: 100 }).primaryKey(),
 });
+
+// a populated type/region table may still be partial. this row is written only
+// after every page of that resource list has been fetched and stored
+export const resourceListCache = pgTable(
+  "resource_list_cache",
+  {
+    resource: varchar("resource", { length: 100 }).primaryKey(),
+    cachedAt: timestamp("cached_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check("resource_list_cache_resource_check", sql`${table.resource} IN ('type', 'region')`),
+  ],
+);
 
 // one pokemon can have multiple types and one type can belong to multiple pokemon
 // pokemon_type is the join table for that many-to-many relationship
@@ -141,16 +160,8 @@ export const pokemonEncounter = pgTable(
   ],
 );
 
-// a postgres enum restricts the result column to the listed legal values
-// this prevents arbitrary strings from accidentally being saved as battle results
-// keep the old values so earlier one-on-one history can still be read during this migration
-export const battleResult = pgEnum("battle_result", [
-  "POKEMON1_WIN",
-  "POKEMON2_WIN",
-  "TIE",
-  "TEAM1_WIN",
-  "TEAM2_WIN",
-]);
+// every result identifies a winning team, including teams of one
+export const battleResult = pgEnum("battle_result", ["TIE", "TEAM1_WIN", "TEAM2_WIN"]);
 
 // battle_history is persistent history rather than a cache
 // every completed /fight request inserts one row here so /battles can retrieve past results later
@@ -159,24 +170,12 @@ export const battleHistory = pgTable(
   {
     // unlike pokemon ids, battle ids do not come from pokeapi, so postgres generates them automatically
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    // these are foreign keys: the integer stored here must refer to a real id in the pokemon table
-    // these foreign keys connect older battles directly to their two pokemon
-    // these older fields stay nullable so original one-on-one battles can still be displayed
-    pokemon1Id: integer("pokemon1_id").references(() => pokemon.id),
-    pokemon2Id: integer("pokemon2_id").references(() => pokemon.id),
     // result uses the enum above, while decidedBy records which comparison actually settled the fight
     result: battleResult("result").notNull(),
     decidedBy: varchar("decided_by", { length: 100 }).notNull(),
-    // saving the calculated scores preserves what the result looked like at fight time
-    // this is useful because history does not need to recalculate every old battle whenever it is requested
-    pokemon1Score: integer("pokemon1_score"),
-    pokemon2Score: integer("pokemon2_score"),
-    // new battles store the sum of each team's participant scores
-    team1Score: integer("team1_score"),
-    team2Score: integer("team2_score"),
-    // older one-on-one rows keep their multipliers here as decimal values
-    pokemon1Multiplier: numeric("pokemon1_multiplier", { precision: 5, scale: 2, mode: "number" }),
-    pokemon2Multiplier: numeric("pokemon2_multiplier", { precision: 5, scale: 2, mode: "number" }),
+    // Persist each team's score so old results do not need recalculation.
+    team1Score: integer("team1_score").notNull(),
+    team2Score: integer("team2_score").notNull(),
     // postgres records an absolute instant and the api formats it as a utc date
     foughtAt: timestamp("fought_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -184,8 +183,6 @@ export const battleHistory = pgTable(
     // indexes are extra database structures that help postgres find/sort commonly queried values faster
     // they cost some storage and insert/update work, so we add them to fields that are useful for battle-history lookups
     index("battle_history_fought_at_idx").on(table.foughtAt),
-    index("battle_history_pokemon1_idx").on(table.pokemon1Id),
-    index("battle_history_pokemon2_idx").on(table.pokemon2Id),
   ],
 );
 
@@ -201,18 +198,20 @@ export const battleParticipant = pgTable(
     pokemonId: integer("pokemon_id")
       .notNull()
       .references(() => pokemon.id),
-    // team number is 1 or 2 and position pairs opponents across the two teams
+    // team number identifies the side; position preserves the member order within that team
     teamNumber: integer("team_number").notNull(),
     position: integer("position").notNull(),
     // save each pokemon's contribution so history can show the original calculation
     battleScore: integer("battle_score").notNull(),
-    totalStats: integer("total_stats").notNull(),
-    speed: integer("speed").notNull(),
+    // historical tie-break inputs stay unchanged when cached pokemon stats change
+    // NULL means the original single-Pokemon record did not save this snapshot.
+    totalStats: integer("total_stats"),
+    speed: integer("speed"),
     typeMultiplier: numeric("type_multiplier", {
       precision: 5,
       scale: 2,
       mode: "number",
-    }).notNull(),
+    }),
   },
   (table) => [
     // one pokemon fills each team slot in a battle
@@ -224,29 +223,15 @@ export const battleParticipant = pgTable(
   ],
 );
 
-// these drizzle relations describe the same connections as the foreign keys in a way drizzle can understand at the object/query level
-// foreign keys enforce valid ids in postgres while relations help drizzle navigate linked rows
-// one pokemon can appear in many battles as pokemon1 and in many other battles as pokemon2
-// the relation names matter because both relationships point between the same two tables and would otherwise be ambiguous
+// a pokemon reaches its battles through participant rows
 export const pokemonRelations = relations(pokemon, ({ many }) => ({
-  battlesAsPokemon1: many(battleHistory, { relationName: "firstPokemon" }),
-  battlesAsPokemon2: many(battleHistory, { relationName: "secondPokemon" }),
+  pokedexEntries: many(pokedex),
   battleParticipants: many(battleParticipant),
+  types: many(pokemonType),
+  encounters: many(pokemonEncounter),
 }));
 
-// original battles may have pokemon1 and pokemon2, while new ones use participant rows
-// fields says which foreign-key column we have and references says which pokemon primary key it points to
-export const battleHistoryRelations = relations(battleHistory, ({ one, many }) => ({
-  pokemon1: one(pokemon, {
-    fields: [battleHistory.pokemon1Id],
-    references: [pokemon.id],
-    relationName: "firstPokemon",
-  }),
-  pokemon2: one(pokemon, {
-    fields: [battleHistory.pokemon2Id],
-    references: [pokemon.id],
-    relationName: "secondPokemon",
-  }),
+export const battleHistoryRelations = relations(battleHistory, ({ many }) => ({
   participants: many(battleParticipant),
 }));
 
@@ -261,3 +246,20 @@ export const battleParticipantRelations = relations(battleParticipant, ({ one })
     references: [pokemon.id],
   }),
 }));
+
+// these orm relations enable nested reads; existing foreign keys enforce integrity
+export const pokemonTypeRelations = relations(pokemonType, ({ one }) => ({
+  pokemon: one(pokemon, { fields: [pokemonType.pokemonId], references: [pokemon.id] }),
+}));
+
+export const pokemonEncounterRelations = relations(pokemonEncounter, ({ one }) => ({
+  pokemon: one(pokemon, { fields: [pokemonEncounter.pokemonId], references: [pokemon.id] }),
+  area: one(encounterArea, { fields: [pokemonEncounter.areaId], references: [encounterArea.id] }),
+}));
+
+export const encounterAreaRelations = relations(encounterArea, ({ many }) => ({
+  encounters: many(pokemonEncounter),
+}));
+
+// re-export auth tables so Drizzle migrations and the database include them
+export * from "./auth-schema";
