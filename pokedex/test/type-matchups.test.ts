@@ -1,6 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import { battleBonus, incomingMultiplier, typeMultiplierAgainstTypes } from "../src/type-matchups";
+import {
+  battleBonus,
+  incomingMultiplier,
+  typeMultiplierAgainstTypes,
+} from "../src/utils/type-matchups";
 
+/**
+ * Build a minimal incoming-effectiveness chart for a type-matchup test.
+ *
+ * @param from - Optional attacking types causing weakness, resistance, or immunity.
+ * @returns An incoming type chart suitable for the scoring helpers.
+ */
 const relation = (from: { double?: string[]; half?: string[]; none?: string[] }) => ({
   damage_relations: {
     double_damage_from: (from.double ?? []).map((name) => ({ name })),

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { decideTeamResult } from "../src/team-result";
-import { formatUtcDate } from "../src/utc";
+import { decideTeamResult } from "../src/utils/team-results";
+import { formatUtcDate } from "../src/utils/utc";
 
 describe("team winner selection", () => {
   test("battle score decides before stats or speed", () => {
@@ -9,7 +9,7 @@ describe("team winner selection", () => {
         { score: 620, totalStats: 200, speed: 20 },
         { score: 600, totalStats: 700, speed: 100 },
       ),
-    ).toEqual({ winner: 1, result: "TEAM1_WIN", decidedBy: "team battle score" });
+    ).toEqual({ result: "TEAM1_WIN", decidedBy: "team battle score" });
   });
 
   test("stats and then speed break equal-score ties", () => {
@@ -18,13 +18,13 @@ describe("team winner selection", () => {
         { score: 600, totalStats: 500, speed: 90 },
         { score: 600, totalStats: 510, speed: 40 },
       ),
-    ).toEqual({ winner: 2, result: "TEAM2_WIN", decidedBy: "total base stats" });
+    ).toEqual({ result: "TEAM2_WIN", decidedBy: "total base stats" });
     expect(
       decideTeamResult(
         { score: 600, totalStats: 500, speed: 90 },
         { score: 600, totalStats: 500, speed: 40 },
       ),
-    ).toEqual({ winner: 1, result: "TEAM1_WIN", decidedBy: "speed" });
+    ).toEqual({ result: "TEAM1_WIN", decidedBy: "speed" });
   });
 
   test("equal totals remain a tie", () => {
