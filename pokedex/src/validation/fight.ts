@@ -31,12 +31,5 @@ const team = z
   .min(1, "choose at least one pokemon")
   .max(4, "choose no more than four pokemon");
 
-// the request needs both team1 and team2 arrays
-// refine checks a rule involving both arrays after zod has checked each one
-export const fightBodySchema = z
-  .object({ team1: team, team2: team })
-  .refine((body) => body.team1.length === body.team2.length, {
-    // attach this error to team2 so the caller knows which field to adjust
-    path: ["team2"],
-    message: "both teams must have the same number of pokemon",
-  });
+// each team independently contains one to four pokemon
+export const fightBodySchema = z.object({ team1: team, team2: team });

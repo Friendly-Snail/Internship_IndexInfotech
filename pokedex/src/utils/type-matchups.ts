@@ -1,21 +1,13 @@
-// the attacker has one or more types and a lookup of saved type matchups
-// the first key is the attacking type and the second key is the defending type
-type Attacker = {
-  types: string[];
-  matchups: Record<string, Record<string, number>>;
-};
-
-// these are the incoming damage relationships returned by pokeapi for a type
-// for example, double_damage_from lists types that are strong against it
-type IncomingChart = {
-  damage_relations: {
-    double_damage_from: { name: string }[];
-    half_damage_from: { name: string }[];
-    no_damage_from: { name: string }[];
-  };
-};
+import type { Attacker, IncomingChart } from "../types/pokemon";
 
 // try each type the attacking pokemon has and choose its strongest option
+/**
+ * Choose the attacker's strongest type against all defending types.
+ *
+ * @param attacker - Attacking types and their cached effectiveness matchups.
+ * @param defendingTypes - Types of a single defending Pokemon.
+ * @returns The best combined multiplier; missing matchups and an untyped attacker are neutral.
+ */
 export function typeMultiplierAgainstTypes(attacker: Attacker, defendingTypes: string[]): number {
   let best = 0;
 
@@ -39,6 +31,13 @@ export function typeMultiplierAgainstTypes(attacker: Attacker, defendingTypes: s
 
 // check how one possible attacking type affects the pokemon we are describing
 // each chart represents one of that defending pokemon's types
+/**
+ * Combine the defensive type charts against one attacking type.
+ *
+ * @param attackingType - The attack type being evaluated.
+ * @param defendingCharts - One incoming-effectiveness chart per defending type.
+ * @returns The combined multiplier; any immunity makes the result zero.
+ */
 export function incomingMultiplier(
   attackingType: string,
   defendingCharts: IncomingChart[],
@@ -62,6 +61,12 @@ export function incomingMultiplier(
 
 // convert type effectiveness into points for this project's simple battle rule
 // the same function is used by fights and the pokemon detail examples
+/**
+ * Convert effectiveness into points for this project's simplified scoring rule.
+ *
+ * @param multiplier - The attack effectiveness multiplier.
+ * @returns 100 for at least 4x, 50 for weakness, -100 for immunity, -50 for resistance, or 0 for neutral.
+ */
 export function battleBonus(multiplier: number): number {
   if (multiplier >= 4) return 100;
   if (multiplier > 1) return 50;
