@@ -27,6 +27,7 @@ export function createApp(
   service: PokemonService,
 ) {
   const app = new Hono();
+  /// TODO this needs to change because these routes will clash
   app.route("/", createAuthRoutes(auth));
   app.route("/", createDocsRoutes(auth));
   app.route("/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));

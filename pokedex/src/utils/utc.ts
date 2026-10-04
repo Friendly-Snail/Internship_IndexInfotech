@@ -9,3 +9,5 @@
 export function formatUtcDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
+
+///TODO just use Unix timestamp instead of UTC

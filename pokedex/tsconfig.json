@@ -8,7 +8,7 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
-    "types": ["bun"],
+    "types": ["bun", "node"],
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

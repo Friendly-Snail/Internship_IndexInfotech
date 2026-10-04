@@ -301,6 +301,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) {
       .map((entry) => entry.type.name);
     const typeData = await Promise.all(types.map(getTypeFromPokeApi));
     const typeRelations: Record<string, TypeRelations> = {};
+    ///TODO for loop not necessary; use function reduce
     for (let i = 0; i < types.length; i++) {
       const relations = typeData[i].damage_relations;
       typeRelations[types[i]] = {
@@ -318,7 +319,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) {
      * @returns A nonnegative integer base stat.
      * @throws If the stat is missing or is not a nonnegative integer.
      */
-    function baseStat(name: string): number {
+    function baseStat(name: string): number { ///TODO this is kiiind of overkill here because we already know PokeAPI is reliable; this kind of contaminates the code base a bit
       const value = apiPokemon.stats.find((entry) => entry.stat.name === name)?.base_stat;
       if (value === undefined || !Number.isInteger(value) || value < 0) {
         throw new Error(`Missing or invalid ${name} stat for ${apiPokemon.name}.`);
