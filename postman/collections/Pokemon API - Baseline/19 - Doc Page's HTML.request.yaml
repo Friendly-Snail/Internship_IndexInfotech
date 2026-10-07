@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:3000/docs
+method: GET
+order: 4503599534444336

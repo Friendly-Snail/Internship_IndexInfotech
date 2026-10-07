@@ -1,0 +1,9 @@
+$kind: http-request
+url: http://localhost:3000/pokedex
+method: POST
+headers:
+  Origin: http://localhost:3000
+body:
+  type: json
+  content: "{\r\n  \"pokemon\": \"pikachu\"\r\n}"
+order: 4503126753417630

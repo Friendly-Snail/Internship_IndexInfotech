@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:3000/battles
+method: GET
+order: 4201852983429428

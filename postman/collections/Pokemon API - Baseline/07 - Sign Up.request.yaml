@@ -1,0 +1,18 @@
+$kind: http-request
+url: http://localhost:3000/api/auth/sign-up/email
+method: POST
+headers:
+  Origin: http://localhost:3000
+  Content-Type: application/json
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Postman Trainer\",\r
+
+    \  \"email\": \"postman-trainer-01@email.com\",\r
+
+    \  \"password\": \"PostmanPractice123!\"\r
+
+    }"
+order: 4490903043646662

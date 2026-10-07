@@ -22,6 +22,10 @@ import {
   typeMatchup,
 } from "../db/schema";
 
+/// TODO
+/// import { db } from "../db";
+/// import { pokeApi } from "../api/pokeapi";
+
 /**
  * Create shared Pokemon lookup and cache helpers.
  *
@@ -29,7 +33,7 @@ import {
  * @param client - Ky client for PokeAPI requests; defaults to the shared client.
  * @returns Helpers for cached Pokemon, resource lists, and type charts.
  */
-export function createPokemonService(database: AppDatabase, client = pokeApi) {
+export function createPokemonService(database: AppDatabase, client = pokeApi) { /// TODO: export function createPokemonService() {
   // this helper performs the actual api communication for a pokemon
   // ky sends an http GET request across the network, await pauses this function until the response arrives,
   // and .json<ApiPokemon>() parses the response body from json into a javascript object we can use

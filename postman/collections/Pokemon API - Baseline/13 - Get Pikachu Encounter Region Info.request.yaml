@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:3000/pokemon/pikachu/regions
+method: GET
+order: 4503597787732176

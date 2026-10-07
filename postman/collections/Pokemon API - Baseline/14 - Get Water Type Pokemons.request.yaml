@@ -1,0 +1,6 @@
+$kind: http-request
+url: http://localhost:3000/search-by-type?type=water
+method: GET
+queryParams:
+  type: water
+order: 4503598792480662

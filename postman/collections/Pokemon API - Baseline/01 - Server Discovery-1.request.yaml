@@ -1,0 +1,5 @@
+$kind: http-request
+name: 01 - Server Discovery
+url: http://localhost:3000/
+method: GET
+order: 1791368943211

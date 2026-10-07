@@ -58,6 +58,10 @@ export const pokedex = pgTable(
   ],
 );
 
+/// TODO
+/// the many-to-many isn’t done correctly `pokedexRelations`; look at the drizzle orm docs for how they do many-to-many 
+/// (https://orm.drizzle.team/docs/relations-v1-v2); stick with v1 drizzle because that is what better-auth uses
+/// *check other many-to-many
 export const pokedexRelations = relations(pokedex, ({ one }) => ({
   trainer: one(user, { fields: [pokedex.userId], references: [user.id] }),
   pokemon: one(pokemon, { fields: [pokedex.pokemonId], references: [pokemon.id] }),
@@ -151,7 +155,7 @@ export const pokemonEncounter = pgTable(
     pokemonId: integer("pokemon_id")
       .notNull()
       .references(() => pokemon.id),
-    areaId: integer("area_id")
+    areaId: integer("area_id") ///TODO: change `areaId` to `encounterAreaId` just to be more intuitive
       .notNull()
       .references(() => encounterArea.id),
   },
