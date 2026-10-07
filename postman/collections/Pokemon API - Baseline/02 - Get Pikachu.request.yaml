@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:3000/pokemon/pikachu
+method: GET
+order: 2808036420766343

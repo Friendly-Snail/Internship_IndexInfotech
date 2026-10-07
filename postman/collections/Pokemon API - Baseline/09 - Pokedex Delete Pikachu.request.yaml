@@ -1,0 +1,6 @@
+$kind: http-request
+url: http://localhost:3000/pokedex/25
+method: DELETE
+headers:
+  Origin: http://localhost:3000
+order: 4503242425479377
