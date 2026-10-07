@@ -28,6 +28,14 @@ export function createApp(
 ) {
   const app = new Hono();
   /// TODO this needs to change because these routes will clash
+  /// app.route("/api/auth", createAuthRoutes(auth));
+  /// app.route("/api/docs", createDocsRoutes(auth));
+  /// app.route("/api/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
+  /// app.route("/api/discovery", createDiscoveryRoutes());
+  /// app.route("/api/battles", createBattleRoutes(database, service));
+  /// app.route("/api/search", createSearchRoutes(database));
+  /// app.route("/api/pokemon", createPokemonRoutes(database, service));
+  /// app.route("/api/resource", createResourceRoutes(service));
   app.route("/", createAuthRoutes(auth));
   app.route("/", createDocsRoutes(auth));
   app.route("/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
