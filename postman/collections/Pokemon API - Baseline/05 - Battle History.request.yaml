@@ -1,4 +1,4 @@
 $kind: http-request
-url: http://localhost:3000/battles
+url: http://localhost:3000/api/battles
 method: GET
 order: 4201852983429428

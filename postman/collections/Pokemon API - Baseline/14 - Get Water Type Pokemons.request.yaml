@@ -1,5 +1,5 @@
 $kind: http-request
-url: http://localhost:3000/search-by-type?type=water
+url: http://localhost:3000/api/types/type-search?type=water
 method: GET
 queryParams:
   type: water

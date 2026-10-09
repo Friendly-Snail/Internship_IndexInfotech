@@ -1,5 +1,5 @@
 $kind: http-request
-url: http://localhost:3000/pokedex/25
+url: http://localhost:3000/api/pokedex/25
 method: DELETE
 headers:
   Origin: http://localhost:3000

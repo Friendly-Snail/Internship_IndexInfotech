@@ -298,16 +298,16 @@ export function createPokemonService() {
       .sort((a, b) => a.slot - b.slot)
       .map((entry) => entry.type.name);
     const typeData = await Promise.all(types.map(getTypeFromPokeApi));
-    const typeRelations: Record<string, TypeRelations> = {};
-    ///TODO for loop not necessary; use function reduce
-    for (let i = 0; i < types.length; i++) {
-      const relations = typeData[i].damage_relations;
-      typeRelations[types[i]] = {
+    // build one lookup object, pairing each type with the response at the same index
+    const typeRelations = types.reduce<Record<string, TypeRelations>>((result, type, index) => {
+      const relations = typeData[index].damage_relations;
+      result[type] = {
         doubleDamageTo: relations.double_damage_to.map((entry) => entry.name),
         halfDamageTo: relations.half_damage_to.map((entry) => entry.name),
         noDamageTo: relations.no_damage_to.map((entry) => entry.name),
       };
-    }
+      return result;
+    }, {});
 
     // Reject incomplete upstream stats instead of inventing defaults.
     /**

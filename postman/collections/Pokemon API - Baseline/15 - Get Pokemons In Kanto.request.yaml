@@ -1,5 +1,5 @@
 $kind: http-request
-url: http://localhost:3000/search-by-region?region=kanto
+url: http://localhost:3000/api/regions/region-search?region=kanto
 method: GET
 queryParams:
   region: kanto

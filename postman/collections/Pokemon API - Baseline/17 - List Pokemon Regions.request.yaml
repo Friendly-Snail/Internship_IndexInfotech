@@ -1,4 +1,4 @@
 $kind: http-request
-url: http://localhost:3000/regions
+url: http://localhost:3000/api/regions
 method: GET
 order: 4503599339228918
