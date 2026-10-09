@@ -2,7 +2,7 @@
 // drizzle uses these definitions both for type-safe queries in the app and for generating database migrations
 import { relations } from "drizzle-orm";
 import { sql } from "drizzle-orm";
-import { user } from "./auth-schema";
+import { user, userRelations as authUserRelations } from "./auth-schema";
 import {
   check,
   integer,
@@ -58,10 +58,8 @@ export const pokedex = pgTable(
   ],
 );
 
-/// TODO
-/// the many-to-many isn’t done correctly `pokedexRelations`; look at the drizzle orm docs for how they do many-to-many
-/// (https://orm.drizzle.team/docs/relations-v1-v2); stick with v1 drizzle because that is what better-auth uses
-/// *check other many-to-many
+// each ownership row belongs to one trainer and one Pokemon
+// both parent tables expose many(pokedex), completing the v1 many-to-many path
 export const pokedexRelations = relations(pokedex, ({ one }) => ({
   trainer: one(user, { fields: [pokedex.userId], references: [user.id] }),
   pokemon: one(pokemon, { fields: [pokedex.pokemonId], references: [pokemon.id] }),
@@ -256,6 +254,31 @@ export const battleParticipantRelations = relations(battleParticipant, ({ one })
 // these orm relations enable nested reads; existing foreign keys enforce integrity
 export const pokemonTypeRelations = relations(pokemonType, ({ one }) => ({
   pokemon: one(pokemon, { fields: [pokemonType.pokemonId], references: [pokemon.id] }),
+  type: one(pokemonElementType, {
+    fields: [pokemonType.typeName],
+    references: [pokemonElementType.name],
+  }),
+}));
+
+// a type reaches its Pokemon through pokemon_type rows
+// matchup roles need names because both columns reference the same type table
+export const pokemonElementTypeRelations = relations(pokemonElementType, ({ many }) => ({
+  pokemonTypes: many(pokemonType),
+  attackingMatchups: many(typeMatchup, { relationName: "attackingType" }),
+  defendingMatchups: many(typeMatchup, { relationName: "defendingType" }),
+}));
+
+export const typeMatchupRelations = relations(typeMatchup, ({ one }) => ({
+  attackingType: one(pokemonElementType, {
+    fields: [typeMatchup.attackingType],
+    references: [pokemonElementType.name],
+    relationName: "attackingType",
+  }),
+  defendingType: one(pokemonElementType, {
+    fields: [typeMatchup.defendingType],
+    references: [pokemonElementType.name],
+    relationName: "defendingType",
+  }),
 }));
 
 export const pokemonEncounterRelations = relations(pokemonEncounter, ({ one }) => ({
@@ -263,6 +286,21 @@ export const pokemonEncounterRelations = relations(pokemonEncounter, ({ one }) =
   area: one(encounterArea, { fields: [pokemonEncounter.areaId], references: [encounterArea.id] }),
 }));
 
-export const encounterAreaRelations = relations(encounterArea, ({ many }) => ({
+export const encounterAreaRelations = relations(encounterArea, ({ one, many }) => ({
   encounters: many(pokemonEncounter),
+  region: one(region, {
+    fields: [encounterArea.regionName],
+    references: [region.name],
+  }),
+}));
+
+export const regionRelations = relations(region, ({ many }) => ({
+  encounterAreas: many(encounterArea),
+}));
+
+// extend generated auth relations here so regeneration cannot erase ownership relations
+// the schema entry point exports this combined definition as userRelations
+export const userRelations = relations(user, (helpers) => ({
+  ...authUserRelations.config(helpers),
+  pokedexEntries: helpers.many(pokedex),
 }));
