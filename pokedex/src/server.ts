@@ -6,7 +6,7 @@ import { createPokemonService } from "./services/pokemon";
 const service = createPokemonService();
 const app = createApp(auth, db, service);
 
-// Bun.env reads environment variables, including PORT fromthe.env file
+// Bun.env reads environment variables, including PORT from the .env file
 // ?? 3000 provides a fallback so the server still has a port when PORT is not configured
 const port = Number(Bun.env.PORT ?? 3000);
 const serverUrl = `http://localhost:${port}/`;
@@ -24,6 +24,17 @@ console.log(`Pokemon detail: ${serverUrl}api/pokemon/pikachu`);
 console.log(`All types: ${serverUrl}api/types`);
 console.log(`All regions: ${serverUrl}api/regions`);
 console.log(`Battle history: ${serverUrl}api/battles`);
+
+console.log(`Swagger UI: ${serverUrl}api/docs`);
+console.log(`OpenAPI: ${serverUrl}api/docs/openapi.json`);
+console.log("Postman: import postman/pokemon-api.postman_collection.json");
+console.log(`Trainer: GET ${serverUrl}api/auth/me (session cookie required)`);
+console.log(
+  `Pokedex: GET ${serverUrl}api/pokedex; POST ${serverUrl}api/pokedex/create with JSON {"pokemon":"pikachu"} (session cookie and configured Origin required for POST)`,
+);
+console.log(
+  "Battle history foughtAt uses Unix seconds; ownership/auth dates use ISO date-time strings.",
+);
 
 // bun recognizes this default export as the server configuration
 // port tells bun where to listen and app.fetch hands each incoming request over to hono for routing

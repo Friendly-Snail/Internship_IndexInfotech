@@ -22,7 +22,12 @@ const ref = (name: string): ReferenceObject => ({ $ref: `#/components/schemas/${
 const text: SchemaObject = { type: "string" };
 const integer: SchemaObject = { type: "integer" };
 const number: SchemaObject = { type: "number" };
-const timestamp: SchemaObject = { type: "string", format: "date-time" };
+const timestamp: SchemaObject = {
+  type: "string",
+  format: "date-time",
+  description:
+    "ISO 8601 (international standard for representing dates & times) date-time string; not Unix seconds.",
+};
 /**
  * Describe an array with a shared schema for its items.
  *
@@ -345,7 +350,7 @@ export async function createOpenApiDocument(auth: Auth): Promise<OpenAPIObject> 
           "List available endpoints",
           "Overview",
           "Discovery",
-          "Public API discovery.",
+          "Public API discovery with HTTP methods and current URLs.",
           {},
         ),
       },
@@ -673,8 +678,101 @@ export async function createOpenApiDocument(auth: Auth): Promise<OpenAPIObject> 
     ref("AuthError"),
     "Email already exists (USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL), or user creation failed.",
   );
+  // Anonymous get-session returns JSON null, which must also be accepted by the contract.
+  const sessionResponse = doc.paths!["/api/auth/get-session"]?.get?.responses?.["200"] as
+    | ResponseObject
+    | undefined;
+  const sessionContent = sessionResponse?.content?.["application/json"];
+  if (sessionContent?.schema) sessionContent.schema = nullable(sessionContent.schema);
+
   // Concrete examples complement the schemas without exposing real user data.
   const examples: Array<[string, "get" | "post" | "delete", string, unknown]> = [
+    [
+      "/api/battles",
+      "get",
+      "200",
+      {
+        count: 1,
+        battles: [
+          {
+            id: 1,
+            foughtAt: 1_000_000_000,
+            result: "TEAM2_WIN",
+            decidedBy: "team battle score",
+            team1: {
+              score: 220,
+              pokemon: [
+                {
+                  position: 1,
+                  id: 25,
+                  name: "pikachu",
+                  battleScore: 220,
+                  totalStats: 320,
+                  speed: 90,
+                  typeMultiplier: 0,
+                },
+              ],
+            },
+            team2: {
+              score: 350,
+              pokemon: [
+                {
+                  position: 1,
+                  id: 74,
+                  name: "geodude",
+                  battleScore: 350,
+                  totalStats: 300,
+                  speed: 20,
+                  typeMultiplier: 2,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+    [
+      "/api/regions/region-search",
+      "get",
+      "200",
+      {
+        region: "kanto",
+        count: 1,
+        pokemon: ["pikachu"],
+        scope: "cached pokemon with PokeAPI wild encounters",
+      },
+    ],
+    ["/api/pokemon/{identifier}/regions", "get", "200", { pokemon: "pikachu", regions: ["kanto"] }],
+    ["/api/types", "get", "200", { count: 2, types: ["electric", "water"], source: "database" }],
+    ["/api/regions", "get", "200", { count: 1, regions: ["kanto"], source: "database" }],
+    ["/api/auth/get-session", "get", "200", null],
+    [
+      "/api/auth/me",
+      "get",
+      "200",
+      {
+        user: {
+          id: "example-trainer-id",
+          name: "Ash",
+          email: "ash@example.com",
+          emailVerified: false,
+        },
+        session: { id: "example-session-id", expiresAt: "2026-10-16T12:00:00.000Z" },
+      },
+    ],
+    [
+      "/api/pokedex/create",
+      "post",
+      "403",
+      { error: "Use the app's Origin header for Pokedex changes." },
+    ],
+    [
+      "/api/pokedex/{pokemonId}",
+      "delete",
+      "404",
+      { error: "This Pokemon is not in your Pokedex." },
+    ],
+
     [
       "/api/battles/fight",
       "post",
