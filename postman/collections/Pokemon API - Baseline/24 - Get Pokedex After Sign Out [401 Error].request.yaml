@@ -1,4 +1,4 @@
 $kind: http-request
-url: ""
+url: http://localhost:3000/pokedex
 method: GET
 order: 4503599625540143

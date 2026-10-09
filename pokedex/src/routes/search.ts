@@ -48,7 +48,7 @@ export function createSearchRoutes(database: AppDatabase) {
     const rows = await database
       .select({ name: pokemon.name })
       .from(pokemonEncounter)
-      .innerJoin(encounterArea, eq(pokemonEncounter.areaId, encounterArea.id))
+      .innerJoin(encounterArea, eq(pokemonEncounter.encounterAreaId, encounterArea.id))
       .innerJoin(pokemon, eq(pokemonEncounter.pokemonId, pokemon.id))
       .where(eq(encounterArea.regionName, name));
     // one pokemon can have many areas in the region, so show its name once

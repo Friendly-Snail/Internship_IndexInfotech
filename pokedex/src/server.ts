@@ -3,7 +3,7 @@ import { db } from "./db";
 import { createApp } from "./app";
 import { createPokemonService } from "./services/pokemon";
 
-const service = createPokemonService(db);
+const service = createPokemonService();
 const app = createApp(auth, db, service);
 
 // Bun.env reads environment variables, including PORT fromthe.env file

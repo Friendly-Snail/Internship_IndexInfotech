@@ -154,13 +154,13 @@ export const pokemonEncounter = pgTable(
     pokemonId: integer("pokemon_id")
       .notNull()
       .references(() => pokemon.id),
-    areaId: integer("area_id") ///TODO: change `areaId` to `encounterAreaId` just to be more intuitive
+    encounterAreaId: integer("area_id")
       .notNull()
       .references(() => encounterArea.id),
   },
   (table) => [
-    primaryKey({ columns: [table.pokemonId, table.areaId] }),
-    index("pokemon_encounter_area_idx").on(table.areaId),
+    primaryKey({ columns: [table.pokemonId, table.encounterAreaId] }),
+    index("pokemon_encounter_area_idx").on(table.encounterAreaId),
   ],
 );
 
@@ -283,7 +283,10 @@ export const typeMatchupRelations = relations(typeMatchup, ({ one }) => ({
 
 export const pokemonEncounterRelations = relations(pokemonEncounter, ({ one }) => ({
   pokemon: one(pokemon, { fields: [pokemonEncounter.pokemonId], references: [pokemon.id] }),
-  area: one(encounterArea, { fields: [pokemonEncounter.areaId], references: [encounterArea.id] }),
+  area: one(encounterArea, {
+    fields: [pokemonEncounter.encounterAreaId],
+    references: [encounterArea.id],
+  }),
 }));
 
 export const encounterAreaRelations = relations(encounterArea, ({ one, many }) => ({
