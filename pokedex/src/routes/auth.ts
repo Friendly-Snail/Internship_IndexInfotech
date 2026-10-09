@@ -5,11 +5,10 @@ import type { Auth } from "../auth";
  * Forward Better Auth requests and identify the current trainer from session cookies (yummy)
  *
  * @param auth - Better Auth instance that handles requests and resolves sessions
- * @returns Authentication routes and GET /me; anonymous /me requests receive 401
+ * @returns Authentication routes and GET /api/auth/me; anonymous /api/auth/me requests receive 401
  */
 export function createAuthRoutes(auth: Auth) {
   const routes = new Hono();
-  routes.all("/api/auth/*", (c) => auth.handler(c.req.raw));
 
   // identify the caller from the signed cookie, never from a supplied user ID
   routes.get("/me", async (c) => {
@@ -26,5 +25,8 @@ export function createAuthRoutes(auth: Auth) {
       session: { id: current.session.id, expiresAt: current.session.expiresAt },
     });
   });
+  // register /me first so Better Auth's wildcard does not consume it
+  // pass the full request URL through; Better Auth uses /api/auth as its basePath
+  routes.all("/*", (c) => auth.handler(c.req.raw));
   return routes;
 }

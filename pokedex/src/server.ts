@@ -15,15 +15,15 @@ const serverUrl = `http://localhost:${port}/`;
 // they do not create the routes themselves, they only show examples of routes that were defined above
 console.log(`Pokemon API running with Bun at ${serverUrl}`);
 console.log(
-  `Fight example: Invoke-RestMethod -Uri "${serverUrl}fight" -Method Post -ContentType "application/json" -Body '{"team1":["pikachu","bulbasaur","squirtle","charmander"],"team2":["geodude","pidgey","rattata","caterpie"]}'`,
+  `Fight example: Invoke-RestMethod -Uri "${serverUrl}api/battles/fight" -Method Post -ContentType "application/json" -Body '{"team1":["pikachu","bulbasaur","squirtle","charmander"],"team2":["geodude","pidgey","rattata","caterpie"]}'`,
 );
-console.log(`Type example: ${serverUrl}search-by-type?type=water`);
-console.log(`Region example: ${serverUrl}search-by-region?region=kanto`);
-console.log(`Pokemon Region example: ${serverUrl}pokemon/pikachu/regions`);
-console.log(`Pokemon detail: ${serverUrl}pokemon/pikachu`);
-console.log(`All types: ${serverUrl}types`);
-console.log(`All regions: ${serverUrl}regions`);
-console.log(`Battle history: ${serverUrl}battles`);
+console.log(`Type example: ${serverUrl}api/types/type-search?type=water`);
+console.log(`Region example: ${serverUrl}api/regions/region-search?region=kanto`);
+console.log(`Pokemon Region example: ${serverUrl}api/pokemon/pikachu/regions`);
+console.log(`Pokemon detail: ${serverUrl}api/pokemon/pikachu`);
+console.log(`All types: ${serverUrl}api/types`);
+console.log(`All regions: ${serverUrl}api/regions`);
+console.log(`Battle history: ${serverUrl}api/battles`);
 
 // bun recognizes this default export as the server configuration
 // port tells bun where to listen and app.fetch hands each incoming request over to hono for routing

@@ -14,7 +14,7 @@ import { formatUtcDate } from "../utils/utc";
  *
  * @param database - Database used to save fights and read their participants.
  * @param service - Shared Pokemon lookup helpers.
- * @returns Public POST /fight and GET /battles routes.
+ * @returns Public POST /api/battles/fight and GET /api/battles routes.
  */
 export function createBattleRoutes(database: AppDatabase, service: PokemonService) {
   const routes = new Hono();
@@ -61,7 +61,7 @@ export function createBattleRoutes(database: AppDatabase, service: PokemonServic
     };
   }
 
-  // POST /fight accepts two teams with one to four pokemon per team
+  // POST /api/battles/fight accepts two teams with one to four pokemon per team
   // client request -> hono -> postgresql cache -> pokeapi if needed -> battle calculation -> database insert -> json response
   routes.post(
     "/fight",
@@ -183,9 +183,9 @@ export function createBattleRoutes(database: AppDatabase, service: PokemonServic
     },
   );
 
-  // GET /battles reads saved fights from postgresql without calling pokeapi
+  // GET /api/battles reads saved fights from postgresql without calling pokeapi
   // all battles, including migrated 1v1 records, use team participants
-  routes.get("/battles", async (c) => {
+  routes.get("/", async (c) => {
     const battles = await database.query.battleHistory.findMany({
       orderBy: (battle, { desc }) => [desc(battle.foughtAt), desc(battle.id)],
       with: {
