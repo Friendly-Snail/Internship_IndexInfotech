@@ -5,7 +5,10 @@ import { drizzle } from "drizzle-orm/pglite";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { createAuth } from "../src/auth/config";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { authOptions } from "../src/auth/config";
+import * as authSchema from "../src/db/schema/auth-schema";
 import { createAuthRoutes } from "../src/routes/auth";
 import { createPokedexRoutes } from "../src/routes/pokedex";
 import * as schema from "../src/db/schema";
@@ -14,7 +17,12 @@ import * as schema from "../src/db/schema";
 const client = new PGlite();
 const db = drizzle(client, { schema });
 const baseURL = "http://localhost:3000";
-const auth = createAuth(db, { baseURL, secret: crypto.randomUUID() + crypto.randomUUID() });
+const auth = betterAuth({
+  ...authOptions,
+  baseURL,
+  secret: crypto.randomUUID() + crypto.randomUUID(),
+  database: drizzleAdapter(db, { provider: "pg", schema: authSchema, transaction: true }),
+});
 let lookups = 0;
 const app = new Hono();
 app.route("/", createAuthRoutes(auth));

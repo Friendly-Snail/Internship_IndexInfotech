@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { and, asc, eq } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import type { createAuth } from "../auth/config";
+import type { Auth } from "../auth";
 import * as schema from "../db/schema/pokemon";
 import { pokedex, pokemon } from "../db/schema/pokemon";
 import { pokemonIdentifier } from "../validation/fight";
@@ -31,7 +31,7 @@ export const removePokemonParams = z.object({
  * @returns Pokédex routes with session checks and origin checks for mutations.
  */
 export function createPokedexRoutes(
-  auth: ReturnType<typeof createAuth>,
+  auth: Auth,
   database: OwnershipDatabase,
   findOrCachePokemon: PokemonLoader,
 ) {

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { swaggerUI } from "@hono/swagger-ui";
-import type { createAuth } from "../auth/config";
+import type { Auth } from "../auth";
 import { createOpenApiDocument } from "../docs/openapi";
 
 /**
@@ -9,7 +9,7 @@ import { createOpenApiDocument } from "../docs/openapi";
  * @param auth - Better Auth instance supplying auth metadata and the session cookie name.
  * @returns Public /openapi.json and /docs routes without Pokemon database queries.
  */
-export function createDocsRoutes(auth: ReturnType<typeof createAuth>) {
+export function createDocsRoutes(auth: Auth) {
   const routes = new Hono();
   let document: ReturnType<typeof createOpenApiDocument> | undefined;
   routes.get("/openapi.json", async (c) => {

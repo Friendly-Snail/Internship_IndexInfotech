@@ -4,7 +4,10 @@ import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { HTTPException } from "hono/http-exception";
 import { createApp } from "../src/app";
-import { createAuth } from "../src/auth/config";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { authOptions } from "../src/auth/config";
+import * as authSchema from "../src/db/schema/auth-schema";
 import { createPokemonService } from "../src/services/pokemon";
 import { pokeApi } from "../src/api/pokeapi";
 import * as schema from "../src/db/schema/pokemon";
@@ -12,7 +15,12 @@ import * as schema from "../src/db/schema/pokemon";
 const client = new PGlite();
 const database = drizzle(client, { schema });
 const baseURL = "http://localhost:3000";
-const auth = createAuth(database, { baseURL, secret: crypto.randomUUID() + crypto.randomUUID() });
+const auth = betterAuth({
+  ...authOptions,
+  baseURL,
+  secret: crypto.randomUUID() + crypto.randomUUID(),
+  database: drizzleAdapter(database, { provider: "pg", schema: authSchema, transaction: true }),
+});
 // unexpected upstream calls fail locally rather than contacting the real PokeAPI
 const upstream = pokeApi.extend({
   fetch: async () => {

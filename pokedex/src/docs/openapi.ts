@@ -7,7 +7,7 @@ import type {
   ParameterObject,
   ResponseObject,
 } from "openapi3-ts/oas31";
-import type { createAuth } from "../auth/config";
+import type { Auth } from "../auth";
 import { fightBodySchema, pokemonIdentifier } from "../validation/fight";
 import { addPokemonBody, removePokemonParams } from "../routes/pokedex";
 
@@ -246,9 +246,7 @@ function normalizeAuthMetadata(value: unknown): unknown {
  * @param auth - Better Auth instance supplying the application origin, cookie name, and auth schemas
  * @returns An OpenAPI document without querying Pokemon data or PostgreSQL
  */
-export async function createOpenApiDocument(
-  auth: ReturnType<typeof createAuth>,
-): Promise<OpenAPIObject> {
+export async function createOpenApiDocument(auth: Auth): Promise<OpenAPIObject> {
   const baseURL = auth.options.baseURL;
   const cookieName = (await auth.$context).authCookies.sessionToken.name;
   const origin: ParameterObject = {

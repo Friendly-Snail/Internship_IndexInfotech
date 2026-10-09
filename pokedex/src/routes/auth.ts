@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { createAuth } from "../auth/config";
+import type { Auth } from "../auth";
 
 /**
  * Forward Better Auth requests and identify the current trainer from session cookies (yummy)
@@ -7,7 +7,7 @@ import type { createAuth } from "../auth/config";
  * @param auth - Better Auth instance that handles requests and resolves sessions
  * @returns Authentication routes and GET /me; anonymous /me requests receive 401
  */
-export function createAuthRoutes(auth: ReturnType<typeof createAuth>) {
+export function createAuthRoutes(auth: Auth) {
   const routes = new Hono();
   routes.all("/api/auth/*", (c) => auth.handler(c.req.raw));
 

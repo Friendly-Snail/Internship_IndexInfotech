@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { eq } from "drizzle-orm";
-import { createAuth } from "../src/auth/config";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { authOptions } from "../src/auth/config";
+import * as authSchema from "../src/db/schema/auth-schema";
 import { createAuthRoutes } from "../src/routes/auth";
 import * as schema from "../src/db/schema/auth-schema";
 
@@ -12,7 +15,12 @@ import * as schema from "../src/db/schema/auth-schema";
 const client = new PGlite();
 const db = drizzle(client, { schema });
 const baseURL = "http://localhost:3000";
-const auth = createAuth(db, { baseURL, secret: crypto.randomUUID() + crypto.randomUUID() });
+const auth = betterAuth({
+  ...authOptions,
+  baseURL,
+  secret: crypto.randomUUID() + crypto.randomUUID(),
+  database: drizzleAdapter(db, { provider: "pg", schema: authSchema, transaction: true }),
+});
 const app = createAuthRoutes(auth);
 
 beforeAll(async () => {

@@ -9,7 +9,10 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import type { OpenAPIObject, OperationObject, ResponseObject } from "openapi3-ts/oas31";
-import { createAuth } from "../src/auth/config";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { authOptions } from "../src/auth/config";
+import * as authSchema from "../src/db/schema/auth-schema";
 import { createAuthRoutes } from "../src/routes/auth";
 import { createDocsRoutes } from "../src/routes/docs";
 import { createPokedexRoutes } from "../src/routes/pokedex";
@@ -20,7 +23,12 @@ import * as schema from "../src/db/schema/pokemon";
 const client = new PGlite();
 const db = drizzle(client, { schema });
 const baseURL = "http://localhost:3000";
-const auth = createAuth(db, { baseURL, secret: crypto.randomUUID() + crypto.randomUUID() });
+const auth = betterAuth({
+  ...authOptions,
+  baseURL,
+  secret: crypto.randomUUID() + crypto.randomUUID(),
+  database: drizzleAdapter(db, { provider: "pg", schema: authSchema, transaction: true }),
+});
 const app = new Hono();
 app.route("/", createDocsRoutes(auth));
 app.route("/", createAuthRoutes(auth));
@@ -159,7 +167,9 @@ test("security, status codes, team limits, and historical nullability are explic
   expect(operation("/api/auth/sign-up/email", "post").responses?.["422"]).toBeDefined();
   const cookie = document.components!.securitySchemes!.trainerSession;
   expect(cookie).toMatchObject({ type: "apiKey", in: "cookie", name: "better-auth.session_token" });
-  const secureAuth = createAuth(db, {
+  const secureAuth = betterAuth({
+    ...authOptions,
+    database: drizzleAdapter(db, { provider: "pg", schema: authSchema, transaction: true }),
     baseURL: "https://pokemon.example",
     secret: crypto.randomUUID() + crypto.randomUUID(),
   });

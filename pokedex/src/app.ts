@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { HTTPError, NetworkError, TimeoutError } from "ky";
-import type { createAuth } from "./auth/config";
+import type { Auth } from "./auth";
 import type { AppDatabase } from "./db/types";
 import type { PokemonService } from "./services/pokemon";
 import { createAuthRoutes } from "./routes/auth";
@@ -21,11 +21,7 @@ import { createResourceRoutes } from "./routes/resources";
  * @param service - Shared Pokemon cache and PokeAPI helpers
  * @returns The Hono application ready to receive requests
  */
-export function createApp(
-  auth: ReturnType<typeof createAuth>,
-  database: AppDatabase,
-  service: PokemonService,
-) {
+export function createApp(auth: Auth, database: AppDatabase, service: PokemonService) {
   const app = new Hono();
   /// TODO this needs to change because these routes will clash
   /// app.route("/api/auth", createAuthRoutes(auth));
