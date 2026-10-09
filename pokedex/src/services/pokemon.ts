@@ -33,7 +33,8 @@ import {
  * @param client - Ky client for PokeAPI requests; defaults to the shared client.
  * @returns Helpers for cached Pokemon, resource lists, and type charts.
  */
-export function createPokemonService(database: AppDatabase, client = pokeApi) { /// TODO: export function createPokemonService() {
+export function createPokemonService(database: AppDatabase, client = pokeApi) {
+  /// TODO: export function createPokemonService() {
   // this helper performs the actual api communication for a pokemon
   // ky sends an http GET request across the network, await pauses this function until the response arrives,
   // and .json<ApiPokemon>() parses the response body from json into a javascript object we can use
@@ -323,7 +324,8 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
      * @returns A nonnegative integer base stat.
      * @throws If the stat is missing or is not a nonnegative integer.
      */
-    function baseStat(name: string): number { ///TODO this is kiiind of overkill here because we already know PokeAPI is reliable; this kind of contaminates the code base a bit
+    function baseStat(name: string): number {
+      ///TODO this is kiiind of overkill here because we already know PokeAPI is reliable; this kind of contaminates the code base a bit
       const value = apiPokemon.stats.find((entry) => entry.stat.name === name)?.base_stat;
       if (value === undefined || !Number.isInteger(value) || value < 0) {
         throw new Error(`Missing or invalid ${name} stat for ${apiPokemon.name}.`);
