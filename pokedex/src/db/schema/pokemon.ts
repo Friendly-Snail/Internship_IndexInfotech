@@ -59,7 +59,7 @@ export const pokedex = pgTable(
 );
 
 /// TODO
-/// the many-to-many isn’t done correctly `pokedexRelations`; look at the drizzle orm docs for how they do many-to-many 
+/// the many-to-many isn’t done correctly `pokedexRelations`; look at the drizzle orm docs for how they do many-to-many
 /// (https://orm.drizzle.team/docs/relations-v1-v2); stick with v1 drizzle because that is what better-auth uses
 /// *check other many-to-many
 export const pokedexRelations = relations(pokedex, ({ one }) => ({
@@ -68,7 +68,8 @@ export const pokedexRelations = relations(pokedex, ({ one }) => ({
 }));
 
 // one row per distinct pokemon type, shared by pokemon and matchup rows
-export const pokemonElementType = pgTable("pokemon_element_type", { ///
+export const pokemonElementType = pgTable("pokemon_element_type", {
+  ///
   name: varchar("name", { length: 100 }).primaryKey(),
 });
 
@@ -265,6 +266,3 @@ export const pokemonEncounterRelations = relations(pokemonEncounter, ({ one }) =
 export const encounterAreaRelations = relations(encounterArea, ({ many }) => ({
   encounters: many(pokemonEncounter),
 }));
-
-// re-export auth tables so Drizzle migrations and the database include them
-export * from "./auth-schema";

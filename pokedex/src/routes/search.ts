@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import type { AppDatabase } from "../db/types";
-import { pokemon, pokemonType, pokemonEncounter, encounterArea } from "../db/schema";
+import { pokemon, pokemonType, pokemonEncounter, encounterArea } from "../db/schema/pokemon";
 
 /**
  * Register searches over cached Pokemon types and encounter regions.

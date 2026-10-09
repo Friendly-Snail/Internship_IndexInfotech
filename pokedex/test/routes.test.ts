@@ -7,7 +7,7 @@ import { createApp } from "../src/app";
 import { createAuth } from "../src/auth/config";
 import { createPokemonService } from "../src/services/pokemon";
 import { pokeApi } from "../src/api/pokeapi";
-import * as schema from "../src/db/schema";
+import * as schema from "../src/db/schema/pokemon";
 
 const client = new PGlite();
 const database = drizzle(client, { schema });

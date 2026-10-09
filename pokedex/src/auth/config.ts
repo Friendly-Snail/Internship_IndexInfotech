@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { openAPI } from "better-auth/plugins";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import * as schema from "../db/auth-schema";
+import * as schema from "../db/schema/auth-schema";
 
 type AuthSettings = { baseURL: string; secret: string };
 

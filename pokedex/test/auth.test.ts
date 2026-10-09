@@ -5,7 +5,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { eq } from "drizzle-orm";
 import { createAuth } from "../src/auth/config";
 import { createAuthRoutes } from "../src/routes/auth";
-import * as schema from "../src/db/auth-schema";
+import * as schema from "../src/db/schema/auth-schema";
 
 // an isolated embedded postgresql instance: these tests never use DATABASE_URL
 // and never create accounts in your real pokedex database.

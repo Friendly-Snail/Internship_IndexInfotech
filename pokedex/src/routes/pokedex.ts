@@ -4,8 +4,8 @@ import { and, asc, eq } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import type { createAuth } from "../auth/config";
-import * as schema from "../db/schema";
-import { pokedex, pokemon } from "../db/schema";
+import * as schema from "../db/schema/pokemon";
+import { pokedex, pokemon } from "../db/schema/pokemon";
 import { pokemonIdentifier } from "../validation/fight";
 
 type OwnershipDatabase = Pick<

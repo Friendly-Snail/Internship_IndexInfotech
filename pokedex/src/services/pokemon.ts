@@ -20,7 +20,7 @@ import {
   region,
   resourceListCache,
   typeMatchup,
-} from "../db/schema";
+} from "../db/schema/pokemon";
 
 /// TODO
 /// import { db } from "../db";

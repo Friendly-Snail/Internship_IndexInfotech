@@ -14,7 +14,7 @@ import { createAuthRoutes } from "../src/routes/auth";
 import { createDocsRoutes } from "../src/routes/docs";
 import { createPokedexRoutes } from "../src/routes/pokedex";
 import { createOpenApiDocument } from "../src/docs/openapi";
-import * as schema from "../src/db/schema";
+import * as schema from "../src/db/schema/pokemon";
 
 // Separate PostgreSQL and cookies; no real DATABASE_URL or PokeAPI requests.
 const client = new PGlite();
