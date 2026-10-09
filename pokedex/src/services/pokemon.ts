@@ -9,7 +9,7 @@ import type {
   ApiLocation,
 } from "../types/pokemon";
 import { eq, inArray } from "drizzle-orm";
-import type { AppDatabase } from "../db/types";
+import { db } from "../db";
 import { pokeApi } from "../api/pokeapi";
 import {
   encounterArea,
@@ -20,20 +20,14 @@ import {
   region,
   resourceListCache,
   typeMatchup,
-} from "../db/schema";
-
-/// TODO
-/// import { db } from "../db";
-/// import { pokeApi } from "../api/pokeapi";
+} from "../db/schema/pokemon";
 
 /**
  * Create shared Pokemon lookup and cache helpers.
  *
- * @param database - Drizzle database containing Pokemon and encounter records.
- * @param client - Ky client for PokeAPI requests; defaults to the shared client.
  * @returns Helpers for cached Pokemon, resource lists, and type charts.
  */
-export function createPokemonService(database: AppDatabase, client = pokeApi) { /// TODO: export function createPokemonService() {
+export function createPokemonService() {
   // this helper performs the actual api communication for a pokemon
   // ky sends an http GET request across the network, await pauses this function until the response arrives,
   // and .json<ApiPokemon>() parses the response body from json into a javascript object we can use
@@ -46,7 +40,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
    * @throws If the upstream request or JSON parsing fails.
    */
   async function getPokemonFromPokeApi(identifier: string): Promise<ApiPokemon> {
-    return client.get(`pokemon/${encodeURIComponent(identifier)}`).json<ApiPokemon>();
+    return pokeApi.get(`pokemon/${encodeURIComponent(identifier)}`).json<ApiPokemon>();
   }
 
   // this works the same way as getPokemonFromPokeApi, but it talks to pokeapi's /type endpoint
@@ -59,7 +53,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
    * @throws If the upstream request or JSON parsing fails.
    */
   async function getTypeFromPokeApi(identifier: string): Promise<ApiType> {
-    return client.get(`type/${encodeURIComponent(identifier)}`).json<ApiType>();
+    return pokeApi.get(`type/${encodeURIComponent(identifier)}`).json<ApiType>();
   }
 
   type ResourceListName = "type" | "region";
@@ -75,7 +69,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
     const names = new Set<string>();
     let next: string | null = `${resource}?limit=100`;
     while (next) {
-      const page: NamedResourceList = await client.get(next).json<NamedResourceList>();
+      const page: NamedResourceList = await pokeApi.get(next).json<NamedResourceList>();
       for (const entry of page.results) names.add(entry.name);
       next = page.next;
     }
@@ -83,15 +77,15 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
   }
 
   /**
-   * Fill an incomplete resource list transactionally, then read its names from the database.
+   * Fill an incomplete resource list transactionally, then read its names from the db.
    *
    * @param resource - The type or region list to read.
-   * @returns Resource names sorted by the database.
+   * @returns Resource names sorted by the db.
    * @throws If an upstream request or database operation fails.
    */
   async function getResourceNames(resource: ResourceListName): Promise<string[]> {
     const resourceTable = resource === "type" ? pokemonElementType : region;
-    const [completedList] = await database
+    const [completedList] = await db
       .select({ cachedAt: resourceListCache.cachedAt })
       .from(resourceListCache)
       .where(eq(resourceListCache.resource, resource))
@@ -102,7 +96,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
       // prove that the whole list is cached. Fetch all pages before writing.
       const names = await fetchResourceNames(resource);
       const nameRows = names.map((name) => ({ name }));
-      await database.transaction(async (tx) => {
+      await db.transaction(async (tx) => {
         if (nameRows.length > 0) {
           await tx.insert(resourceTable).values(nameRows).onConflictDoNothing();
         }
@@ -115,7 +109,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
       });
     }
 
-    const rows = await database
+    const rows = await db
       .select({ name: resourceTable.name })
       .from(resourceTable)
       .orderBy(resourceTable.name);
@@ -131,10 +125,10 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
    * @throws If the Pokemon or its type memberships are missing, or a database query fails.
    */
   async function loadCachedPokemon(id: number): Promise<CachedPokemon> {
-    const [row] = await database.select().from(pokemon).where(eq(pokemon.id, id)).limit(1);
-    if (!row) throw new Error("Pokemon could not be loaded from the database.");
+    const [row] = await db.select().from(pokemon).where(eq(pokemon.id, id)).limit(1);
+    if (!row) throw new Error("Pokemon could not be loaded from the db.");
 
-    const memberships = await database
+    const memberships = await db
       .select()
       .from(pokemonType)
       .where(eq(pokemonType.pokemonId, id))
@@ -145,7 +139,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
     }
     const types = memberships.map((entry) => entry.typeName);
     // build a lookup from each of this pokemon's attacking types to defending types
-    const matchupRows = await database
+    const matchupRows = await db
       .select()
       .from(typeMatchup)
       .where(inArray(typeMatchup.attackingType, types));
@@ -180,11 +174,11 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
    */
   function getEncounterAreaId(url: string): number {
     const pathParts = new URL(url).pathname.split("/").filter(Boolean);
-    const areaId = Number(pathParts.at(-1));
-    if (!Number.isSafeInteger(areaId) || areaId <= 0) {
+    const encounterAreaId = Number(pathParts.at(-1));
+    if (!Number.isSafeInteger(encounterAreaId) || encounterAreaId <= 0) {
       throw new Error("Invalid PokeAPI area ID");
     }
-    return areaId;
+    return encounterAreaId;
   }
 
   /**
@@ -199,19 +193,19 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
     areaUrl: string,
     locationRequests: Map<string, Promise<ApiLocation>>,
   ): Promise<EncounterAreaRow | null> {
-    const areaId = getEncounterAreaId(areaUrl);
-    const [cachedArea] = await database
+    const encounterAreaId = getEncounterAreaId(areaUrl);
+    const [cachedArea] = await db
       .select()
       .from(encounterArea)
-      .where(eq(encounterArea.id, areaId))
+      .where(eq(encounterArea.id, encounterAreaId))
       .limit(1);
     if (cachedArea) return cachedArea;
 
-    const area = await client.get(areaUrl).json<ApiArea>();
+    const area = await pokeApi.get(areaUrl).json<ApiArea>();
     const locationUrl = area.location.url;
     let locationRequest = locationRequests.get(locationUrl);
     if (!locationRequest) {
-      locationRequest = client.get(locationUrl).json<ApiLocation>();
+      locationRequest = pokeApi.get(locationUrl).json<ApiLocation>();
       locationRequests.set(locationUrl, locationRequest);
     }
     const location = await locationRequest;
@@ -234,14 +228,14 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
    * @throws If an upstream request or transactional write fails; the completion marker remains unset.
    */
   async function ensureRegionsCached(id: number): Promise<void> {
-    const [cachedPokemon] = await database
+    const [cachedPokemon] = await db
       .select({ regionsCachedAt: pokemon.regionsCachedAt })
       .from(pokemon)
       .where(eq(pokemon.id, id))
       .limit(1);
     if (!cachedPokemon || cachedPokemon.regionsCachedAt) return;
 
-    const encounters = await client.get(`pokemon/${id}/encounters`).json<ApiEncounter[]>();
+    const encounters = await pokeApi.get(`pokemon/${id}/encounters`).json<ApiEncounter[]>();
     const uniqueAreaUrls = new Set(encounters.map((encounter) => encounter.location_area.url));
     const areaUrls = [...uniqueAreaUrls];
     const areaRows: EncounterAreaRow[] = [];
@@ -260,11 +254,11 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
 
     const regionNames = new Set(areaRows.map((area) => area.regionName));
     const regionRows = [...regionNames].map((name) => ({ name }));
-    const encounterLinks = areaRows.map((area) => ({ pokemonId: id, areaId: area.id }));
+    const encounterLinks = areaRows.map((area) => ({ pokemonId: id, encounterAreaId: area.id }));
 
     // keep foreign-key writes and the completion marker atomic. a failed check
     // leaves regionsCachedAt null so a later request can try again
-    await database.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       if (regionRows.length > 0) {
         await tx.insert(region).values(regionRows).onConflictDoNothing();
       }
@@ -289,7 +283,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
     // the route already validates identifiers, so a positive whole number is an id
     const numericId = Number(identifier);
     const isId = Number.isSafeInteger(numericId) && numericId > 0;
-    const [existing] = await database
+    const [existing] = await db
       .select({ id: pokemon.id })
       .from(pokemon)
       .where(isId ? eq(pokemon.id, numericId) : eq(pokemon.name, identifier))
@@ -304,16 +298,16 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
       .sort((a, b) => a.slot - b.slot)
       .map((entry) => entry.type.name);
     const typeData = await Promise.all(types.map(getTypeFromPokeApi));
-    const typeRelations: Record<string, TypeRelations> = {};
-    ///TODO for loop not necessary; use function reduce
-    for (let i = 0; i < types.length; i++) {
-      const relations = typeData[i].damage_relations;
-      typeRelations[types[i]] = {
+    // build one lookup object, pairing each type with the response at the same index
+    const typeRelations = types.reduce<Record<string, TypeRelations>>((result, type, index) => {
+      const relations = typeData[index].damage_relations;
+      result[type] = {
         doubleDamageTo: relations.double_damage_to.map((entry) => entry.name),
         halfDamageTo: relations.half_damage_to.map((entry) => entry.name),
         noDamageTo: relations.no_damage_to.map((entry) => entry.name),
       };
-    }
+      return result;
+    }, {});
 
     // Reject incomplete upstream stats instead of inventing defaults.
     /**
@@ -323,7 +317,8 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
      * @returns A nonnegative integer base stat.
      * @throws If the stat is missing or is not a nonnegative integer.
      */
-    function baseStat(name: string): number { ///TODO this is kiiind of overkill here because we already know PokeAPI is reliable; this kind of contaminates the code base a bit
+    function baseStat(name: string): number {
+      ///TODO this is kiiind of overkill here because we already know PokeAPI is reliable; this kind of contaminates the code base a bit
       const value = apiPokemon.stats.find((entry) => entry.stat.name === name)?.base_stat;
       if (value === undefined || !Number.isInteger(value) || value < 0) {
         throw new Error(`Missing or invalid ${name} stat for ${apiPokemon.name}.`);
@@ -340,7 +335,7 @@ export function createPokemonService(database: AppDatabase, client = pokeApi) { 
     };
 
     // a transaction keeps the pokemon, its stats, and its types together
-    await database.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       const inserted = await tx
         .insert(pokemon)
         .values({

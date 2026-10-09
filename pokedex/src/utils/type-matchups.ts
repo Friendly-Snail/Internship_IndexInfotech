@@ -44,17 +44,23 @@ export function incomingMultiplier(
 ): number {
   let multiplier = 1;
 
-  for (const chart of defendingCharts) { /// TODO: instead of for loop: `defendingCharts.forEach((chart) => {`
+  defendingCharts.forEach((chart) => {
+    // return only skips this callback; keep an immunity result at zero for later charts
+    if (multiplier === 0) return;
+
     const relations = chart.damage_relations;
 
     // immunity makes the entire result zero, even if the other type is weak to the attack
-    if (relations.no_damage_from.some((entry) => entry.name === attackingType)) return 0;
+    if (relations.no_damage_from.some((entry) => entry.name === attackingType)) {
+      multiplier = 0;
+      return;
+    }
 
     // multiply once for each defending type that is weak or resistant
     // for example, 2 times 0.5 becomes 1, while 2 times 2 becomes 4
     if (relations.double_damage_from.some((entry) => entry.name === attackingType)) multiplier *= 2;
     if (relations.half_damage_from.some((entry) => entry.name === attackingType)) multiplier *= 0.5;
-  }
+  });
 
   return multiplier;
 }

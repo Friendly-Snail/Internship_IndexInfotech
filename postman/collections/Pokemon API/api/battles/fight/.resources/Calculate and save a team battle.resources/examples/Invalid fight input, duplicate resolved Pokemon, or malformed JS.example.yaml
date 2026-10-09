@@ -1,0 +1,87 @@
+$kind: http-example
+name: Invalid fight input, duplicate resolved Pokemon, or malformed JSON.
+request:
+  url: "{{baseUrl}}/api/battles/fight"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "team1": [
+          "pikachu"
+        ],
+        "team2": [
+          "geodude"
+        ]
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string",
+        "issues": [
+          {
+            "path": "string",
+            "message": "string"
+          },
+          {
+            "path": "string",
+            "message": "string"
+          }
+        ]
+      }
+    $type: |-
+      {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string"
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "message"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "error",
+              "issues"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        ]
+      }
+order: 2000

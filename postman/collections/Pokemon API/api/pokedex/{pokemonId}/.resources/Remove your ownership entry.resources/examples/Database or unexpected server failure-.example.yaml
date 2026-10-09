@@ -1,0 +1,47 @@
+$kind: http-example
+name: Database or unexpected server failure.
+request:
+  url: "{{baseUrl}}/api/pokedex/:pokemonId"
+  method: DELETE
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Match BETTER_AUTH_URL. Browsers supply Origin automatically; PowerShell/Postman must supply it explicitly for ownership changes.
+    - key: Accept
+      value: application/json
+    - key: better-auth.session_token
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+  pathVariables:
+    - key: pokemonId
+      value: "25"
+      disabled: false
+      description: Positive numeric Pokemon ID from your list as a path string; maximum 2147483647. Names are rejected.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 6000

@@ -1,0 +1,67 @@
+$kind: http-example
+name: Invalid body/extra fields or malformed JSON.
+request:
+  url: "{{baseUrl}}/api/pokedex/create"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Match BETTER_AUTH_URL. Browsers supply Origin automatically; PowerShell/Postman must supply it explicitly for ownership changes.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: better-auth.session_token
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+  body:
+    type: json
+    content: |-
+      {
+        "pokemon": "pikachu"
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "success": true,
+        "error": {
+          "name": "string",
+          "message": "string"
+        }
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "error"
+        ]
+      }
+order: 2000

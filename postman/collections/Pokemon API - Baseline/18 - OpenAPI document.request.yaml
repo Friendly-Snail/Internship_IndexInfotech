@@ -1,4 +1,4 @@
 $kind: http-request
-url: http://localhost:3000/openapi.json
+url: http://localhost:3000/api/docs/openapi.json
 method: GET
 order: 4503599424792130

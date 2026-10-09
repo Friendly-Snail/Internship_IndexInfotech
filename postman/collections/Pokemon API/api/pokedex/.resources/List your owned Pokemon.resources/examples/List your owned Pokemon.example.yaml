@@ -1,0 +1,80 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/pokedex"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: better-auth.session_token
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "count": 1,
+        "entries": [
+          {
+            "pokemon": {
+              "id": 25,
+              "name": "pikachu"
+            },
+            "addedAt": "2026-10-03T06:00:00.000Z"
+          }
+        ]
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "pokemon": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ]
+                },
+                "addedAt": {
+                  "type": "string",
+                  "description": "ISO 8601 (international standard for representing dates & times) date-time string; not Unix seconds.",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "pokemon",
+                "addedAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "count",
+          "entries"
+        ]
+      }
+order: 1000

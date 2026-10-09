@@ -1,0 +1,49 @@
+$kind: http-example
+name: Unique sorted regions.
+request:
+  url: "{{baseUrl}}/api/pokemon/:identifier/regions"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    - key: identifier
+      value: pikachu
+      disabled: false
+      description: Pokemon name or positive ID as a string. Trimmed and lowercased; numeric IDs must be safe integers.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "pokemon": "pikachu",
+        "regions": [
+          "kanto"
+        ]
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "pokemon": {
+            "type": "string"
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "pokemon",
+          "regions"
+        ]
+      }
+order: 1000

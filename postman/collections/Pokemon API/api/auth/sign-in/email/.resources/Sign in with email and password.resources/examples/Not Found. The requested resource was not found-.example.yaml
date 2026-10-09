@@ -1,0 +1,49 @@
+$kind: http-example
+name: Not Found. The requested resource was not found.
+request:
+  url: "{{baseUrl}}/api/auth/sign-in/email"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Recommended for API clients; match BETTER_AUTH_URL. Better Auth rejects untrusted browser origins. Browsers supply this header automatically.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "email": "ash@example.com",
+        "password": "Pikachu-Test-123!"
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "string",
+        "code": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+order: 5000

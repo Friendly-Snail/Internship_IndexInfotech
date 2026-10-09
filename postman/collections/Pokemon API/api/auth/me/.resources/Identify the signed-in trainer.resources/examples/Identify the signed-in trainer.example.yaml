@@ -1,0 +1,85 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/auth/me"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: better-auth.session_token
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "user": {
+          "id": "example-trainer-id",
+          "name": "Ash",
+          "email": "ash@example.com",
+          "emailVerified": false
+        },
+        "session": {
+          "id": "example-session-id",
+          "expiresAt": "2026-10-16T12:00:00.000Z"
+        }
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "emailVerified": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email",
+              "emailVerified"
+            ]
+          },
+          "session": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "expiresAt": {
+                "type": "string",
+                "description": "ISO 8601 (international standard for representing dates & times) date-time string; not Unix seconds.",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "expiresAt"
+            ]
+          }
+        },
+        "required": [
+          "user",
+          "session"
+        ]
+      }
+order: 1000

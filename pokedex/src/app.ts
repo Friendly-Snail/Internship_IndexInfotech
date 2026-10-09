@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { HTTPError, NetworkError, TimeoutError } from "ky";
-import type { createAuth } from "./auth/config";
+import type { Auth } from "./auth";
 import type { AppDatabase } from "./db/types";
 import type { PokemonService } from "./services/pokemon";
 import { createAuthRoutes } from "./routes/auth";
@@ -9,9 +9,9 @@ import { createDocsRoutes } from "./routes/docs";
 import { createPokedexRoutes } from "./routes/pokedex";
 import { createDiscoveryRoutes } from "./routes/discovery";
 import { createBattleRoutes } from "./routes/battles";
-import { createSearchRoutes } from "./routes/search";
+import { createTypeSearchRoutes, createRegionSearchRoutes } from "./routes/search";
 import { createPokemonRoutes } from "./routes/pokemon";
-import { createResourceRoutes } from "./routes/resources";
+import { createTypeResourceRoutes, createRegionResourceRoutes } from "./routes/resources";
 
 /**
  * Assemble the API routes and shared error handlers using one set of dependencies
@@ -21,29 +21,19 @@ import { createResourceRoutes } from "./routes/resources";
  * @param service - Shared Pokemon cache and PokeAPI helpers
  * @returns The Hono application ready to receive requests
  */
-export function createApp(
-  auth: ReturnType<typeof createAuth>,
-  database: AppDatabase,
-  service: PokemonService,
-) {
+export function createApp(auth: Auth, database: AppDatabase, service: PokemonService) {
   const app = new Hono();
-  /// TODO this needs to change because these routes will clash
-  /// app.route("/api/auth", createAuthRoutes(auth));
-  /// app.route("/api/docs", createDocsRoutes(auth));
-  /// app.route("/api/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
-  /// app.route("/api/discovery", createDiscoveryRoutes());
-  /// app.route("/api/battles", createBattleRoutes(database, service));
-  /// app.route("/api/search", createSearchRoutes(database));
-  /// app.route("/api/pokemon", createPokemonRoutes(database, service));
-  /// app.route("/api/resource", createResourceRoutes(service));
-  app.route("/", createAuthRoutes(auth));
-  app.route("/", createDocsRoutes(auth));
-  app.route("/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
+  // mount each router under its resource; paths inside routers stay relative
   app.route("/", createDiscoveryRoutes());
-  app.route("/", createBattleRoutes(database, service));
-  app.route("/", createSearchRoutes(database));
-  app.route("/pokemon", createPokemonRoutes(database, service));
-  app.route("/", createResourceRoutes(service));
+  app.route("/api/auth", createAuthRoutes(auth));
+  app.route("/api/docs", createDocsRoutes(auth));
+  app.route("/api/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
+  app.route("/api/battles", createBattleRoutes(database, service));
+  app.route("/api/pokemon", createPokemonRoutes(database, service));
+  app.route("/api/types", createTypeResourceRoutes(service));
+  app.route("/api/types", createTypeSearchRoutes(database));
+  app.route("/api/regions", createRegionResourceRoutes(service));
+  app.route("/api/regions", createRegionSearchRoutes(database));
   // if no route above matches the requested path, return a normal HTTP 404 json response instead of an html error page
   app.notFound((c) => c.json({ error: "Not Found" }, 404));
   // route errors arrive here once; failed cache operations never look successful

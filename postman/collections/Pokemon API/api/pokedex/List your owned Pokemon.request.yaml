@@ -1,0 +1,18 @@
+$kind: http-request
+description: "Private list ordered by Pokemon ID. Trainer identity always comes from the session. Cache-Control: no-store."
+url: "{{baseUrl}}/api/pokedex"
+method: GET
+headers:
+  Accept: application/json
+body:
+  type: text
+  content: ""
+auth:
+  type: apikey
+  credentials:
+    key: better-auth.session_token
+    value: "{{apiKey}}"
+    in: header
+settings: {}
+examples: ./.resources/List your owned Pokemon.resources/examples
+order: 1000

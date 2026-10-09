@@ -7,7 +7,7 @@ import type {
   ParameterObject,
   ResponseObject,
 } from "openapi3-ts/oas31";
-import type { createAuth } from "../auth/config";
+import type { Auth } from "../auth";
 import { fightBodySchema, pokemonIdentifier } from "../validation/fight";
 import { addPokemonBody, removePokemonParams } from "../routes/pokedex";
 
@@ -22,7 +22,12 @@ const ref = (name: string): ReferenceObject => ({ $ref: `#/components/schemas/${
 const text: SchemaObject = { type: "string" };
 const integer: SchemaObject = { type: "integer" };
 const number: SchemaObject = { type: "number" };
-const timestamp: SchemaObject = { type: "string", format: "date-time" };
+const timestamp: SchemaObject = {
+  type: "string",
+  format: "date-time",
+  description:
+    "ISO 8601 (international standard for representing dates & times) date-time string; not Unix seconds.",
+};
 /**
  * Describe an array with a shared schema for its items.
  *
@@ -151,7 +156,12 @@ const schemas: Record<string, SchemaObject> = {
   HistoryTeam: object({ score: integer, pokemon: array(ref("HistoryMember")) }),
   BattleHistory: object({
     id: integer,
-    foughtAt: { type: "string", format: "date", description: "UTC calendar date, YYYY-MM-DD." },
+    foughtAt: {
+      type: "integer",
+      format: "int64",
+      description: "Whole Unix seconds since 1970-01-01T00:00:00Z, rounded down.",
+      example: 1_000_000_000,
+    },
     result: ref("BattleResult"),
     decidedBy: text,
     team1: ref("HistoryTeam"),
@@ -246,9 +256,7 @@ function normalizeAuthMetadata(value: unknown): unknown {
  * @param auth - Better Auth instance supplying the application origin, cookie name, and auth schemas
  * @returns An OpenAPI document without querying Pokemon data or PostgreSQL
  */
-export async function createOpenApiDocument(
-  auth: ReturnType<typeof createAuth>,
-): Promise<OpenAPIObject> {
+export async function createOpenApiDocument(auth: Auth): Promise<OpenAPIObject> {
   const baseURL = auth.options.baseURL;
   const cookieName = (await auth.$context).authCookies.sessionToken.name;
   const origin: ParameterObject = {
@@ -290,7 +298,7 @@ export async function createOpenApiDocument(
       title: "Pokemon API",
       version: "2.0.0",
       description:
-        "Team battles, Pokemon caching, and trainer Pokedex ownership. Sign up/sign in to receive a session cookie. Public battle/search routes do not require authentication; /me and /pokedex do. Swagger UI uses browser cookies: sign in with Try it out in this browser, then call protected routes. Its Authorize dialog cannot set an HttpOnly cookie. A PowerShell session is separate from the browser session.",
+        "Team battles, Pokemon caching, and trainer Pokedex ownership. Sign up/sign in to receive a session cookie. Public battle/search routes do not require authentication; /api/auth/me and /api/pokedex do. Swagger UI uses browser cookies: sign in with Try it out in this browser, then call protected routes. Its Authorize dialog cannot set an HttpOnly cookie. A PowerShell session is separate from the browser session.",
     },
     servers: [{ url: baseURL ?? "/" }],
     security: [],
@@ -310,7 +318,7 @@ export async function createOpenApiDocument(
       },
     },
     paths: {
-      "/docs": {
+      "/api/docs": {
         get: {
           operationId: "getDocumentation",
           summary: "Open interactive Swagger UI",
@@ -323,7 +331,7 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/openapi.json": {
+      "/api/docs/openapi.json": {
         get: {
           operationId: "getOpenApi",
           summary: "Download the OpenAPI document",
@@ -342,11 +350,11 @@ export async function createOpenApiDocument(
           "List available endpoints",
           "Overview",
           "Discovery",
-          "Public API discovery.",
+          "Public API discovery with HTTP methods and current URLs.",
           {},
         ),
       },
-      "/fight": {
+      "/api/battles/fight": {
         post: {
           tags: ["Battles"],
           operationId: "fightTeams",
@@ -382,16 +390,16 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/battles": {
+      "/api/battles": {
         get: read(
           "getBattles",
           "Read saved battle history",
           "Battles",
           "BattlesResponse",
-          "Public history, newest first; participants ordered by position. Migrated snapshots can be null. foughtAt is a UTC date. No PokeAPI request.",
+          "Public history, newest first; participants ordered by position. Migrated snapshots can be null. foughtAt is an integer Unix timestamp in seconds. No PokeAPI request.",
         ),
       },
-      "/search-by-type": {
+      "/api/types/type-search": {
         get: {
           ...read(
             "searchByType",
@@ -416,7 +424,7 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/search-by-region": {
+      "/api/regions/region-search": {
         get: {
           ...read(
             "searchByRegion",
@@ -441,7 +449,7 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/pokemon/{identifier}/regions": {
+      "/api/pokemon/{identifier}/regions": {
         get: {
           ...read(
             "getPokemonRegions",
@@ -459,7 +467,7 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/pokemon/{identifier}": {
+      "/api/pokemon/{identifier}": {
         get: {
           ...read(
             "getPokemonDetail",
@@ -477,7 +485,7 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/types": {
+      "/api/types": {
         get: read(
           "getTypes",
           "Get the complete type list",
@@ -487,7 +495,7 @@ export async function createOpenApiDocument(
           upstreamErrors,
         ),
       },
-      "/regions": {
+      "/api/regions": {
         get: read(
           "getRegions",
           "Get the complete region list",
@@ -497,7 +505,7 @@ export async function createOpenApiDocument(
           upstreamErrors,
         ),
       },
-      "/me": {
+      "/api/auth/me": {
         get: {
           ...read(
             "getCurrentTrainer",
@@ -510,7 +518,7 @@ export async function createOpenApiDocument(
           security: privateSecurity,
         },
       },
-      "/pokedex": {
+      "/api/pokedex": {
         get: {
           ...read(
             "getMyPokedex",
@@ -522,6 +530,8 @@ export async function createOpenApiDocument(
           ),
           security: privateSecurity,
         },
+      },
+      "/api/pokedex/create": {
         post: {
           tags: ["Pokedex"],
           operationId: "addMyPokemon",
@@ -555,7 +565,7 @@ export async function createOpenApiDocument(
           },
         },
       },
-      "/pokedex/{pokemonId}": {
+      "/api/pokedex/{pokemonId}": {
         delete: {
           tags: ["Pokedex"],
           operationId: "removeMyPokemon",
@@ -636,7 +646,7 @@ export async function createOpenApiDocument(
           ". Clears any current session cookie; anonymous sign-out also succeeds. Request body is optional.";
       if (path === "/get-session")
         operation.description +=
-          ". Returns null with no valid session; unlike /me, anonymous access does not return 401.";
+          ". Returns null with no valid session; unlike /api/auth/me, anonymous access does not return 401.";
       if (path === "/sign-up/email" || path === "/sign-in/email") {
         operation.description +=
           ". Sets an HttpOnly session cookie. Email/password authentication is enabled; email verification delivery is not configured.";
@@ -668,10 +678,103 @@ export async function createOpenApiDocument(
     ref("AuthError"),
     "Email already exists (USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL), or user creation failed.",
   );
+  // Anonymous get-session returns JSON null, which must also be accepted by the contract.
+  const sessionResponse = doc.paths!["/api/auth/get-session"]?.get?.responses?.["200"] as
+    | ResponseObject
+    | undefined;
+  const sessionContent = sessionResponse?.content?.["application/json"];
+  if (sessionContent?.schema) sessionContent.schema = nullable(sessionContent.schema);
+
   // Concrete examples complement the schemas without exposing real user data.
   const examples: Array<[string, "get" | "post" | "delete", string, unknown]> = [
     [
-      "/fight",
+      "/api/battles",
+      "get",
+      "200",
+      {
+        count: 1,
+        battles: [
+          {
+            id: 1,
+            foughtAt: 1_000_000_000,
+            result: "TEAM2_WIN",
+            decidedBy: "team battle score",
+            team1: {
+              score: 220,
+              pokemon: [
+                {
+                  position: 1,
+                  id: 25,
+                  name: "pikachu",
+                  battleScore: 220,
+                  totalStats: 320,
+                  speed: 90,
+                  typeMultiplier: 0,
+                },
+              ],
+            },
+            team2: {
+              score: 350,
+              pokemon: [
+                {
+                  position: 1,
+                  id: 74,
+                  name: "geodude",
+                  battleScore: 350,
+                  totalStats: 300,
+                  speed: 20,
+                  typeMultiplier: 2,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+    [
+      "/api/regions/region-search",
+      "get",
+      "200",
+      {
+        region: "kanto",
+        count: 1,
+        pokemon: ["pikachu"],
+        scope: "cached pokemon with PokeAPI wild encounters",
+      },
+    ],
+    ["/api/pokemon/{identifier}/regions", "get", "200", { pokemon: "pikachu", regions: ["kanto"] }],
+    ["/api/types", "get", "200", { count: 2, types: ["electric", "water"], source: "database" }],
+    ["/api/regions", "get", "200", { count: 1, regions: ["kanto"], source: "database" }],
+    ["/api/auth/get-session", "get", "200", null],
+    [
+      "/api/auth/me",
+      "get",
+      "200",
+      {
+        user: {
+          id: "example-trainer-id",
+          name: "Ash",
+          email: "ash@example.com",
+          emailVerified: false,
+        },
+        session: { id: "example-session-id", expiresAt: "2026-10-16T12:00:00.000Z" },
+      },
+    ],
+    [
+      "/api/pokedex/create",
+      "post",
+      "403",
+      { error: "Use the app's Origin header for Pokedex changes." },
+    ],
+    [
+      "/api/pokedex/{pokemonId}",
+      "delete",
+      "404",
+      { error: "This Pokemon is not in your Pokedex." },
+    ],
+
+    [
+      "/api/battles/fight",
       "post",
       "200",
       {
@@ -712,7 +815,7 @@ export async function createOpenApiDocument(
       },
     ],
     [
-      "/pokedex",
+      "/api/pokedex",
       "get",
       "200",
       {
@@ -721,20 +824,20 @@ export async function createOpenApiDocument(
       },
     ],
     [
-      "/pokedex",
+      "/api/pokedex/create",
       "post",
       "201",
       { pokemon: { id: 25, name: "pikachu" }, addedAt: "2026-10-03T06:00:00.000Z" },
     ],
-    ["/pokedex", "post", "409", { error: "This Pokemon is already in your Pokedex." }],
-    ["/pokedex/{pokemonId}", "delete", "200", { removed: true, pokemonId: 25 }],
+    ["/api/pokedex/create", "post", "409", { error: "This Pokemon is already in your Pokedex." }],
+    ["/api/pokedex/{pokemonId}", "delete", "200", { removed: true, pokemonId: 25 }],
     [
-      "/search-by-type",
+      "/api/types/type-search",
       "get",
       "200",
       { type: "water", count: 1, pokemon: ["squirtle"], scope: "cached pokemon" },
     ],
-    ["/me", "get", "401", { error: "Sign in to identify your trainer." }],
+    ["/api/auth/me", "get", "401", { error: "Sign in to identify your trainer." }],
     [
       "/api/auth/sign-up/email",
       "post",

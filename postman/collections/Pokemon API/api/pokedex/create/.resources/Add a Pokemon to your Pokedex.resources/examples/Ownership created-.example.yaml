@@ -1,0 +1,70 @@
+$kind: http-example
+name: Ownership created.
+request:
+  url: "{{baseUrl}}/api/pokedex/create"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Match BETTER_AUTH_URL. Browsers supply Origin automatically; PowerShell/Postman must supply it explicitly for ownership changes.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: better-auth.session_token
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+  body:
+    type: json
+    content: |-
+      {
+        "pokemon": "pikachu"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "pokemon": {
+          "id": 25,
+          "name": "pikachu"
+        },
+        "addedAt": "2026-10-03T06:00:00.000Z"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "pokemon": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "addedAt": {
+            "type": "string",
+            "description": "ISO 8601 (international standard for representing dates & times) date-time string; not Unix seconds.",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "pokemon",
+          "addedAt"
+        ]
+      }
+order: 1000

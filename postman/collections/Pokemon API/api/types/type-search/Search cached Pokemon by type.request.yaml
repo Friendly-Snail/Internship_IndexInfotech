@@ -1,0 +1,30 @@
+$kind: http-request
+description: Only cached Pokemon, not the full PokeAPI roster. Unknown nonempty types return an empty list. Query is trimmed/lowercased.
+url: "{{baseUrl}}/api/types/type-search?type=water"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: type
+    value: water
+    disabled: false
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Search cached Pokemon by type.resources/examples
+order: 1000

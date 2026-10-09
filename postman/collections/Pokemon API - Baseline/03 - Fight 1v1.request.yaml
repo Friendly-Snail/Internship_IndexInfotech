@@ -1,13 +1,13 @@
 $kind: http-request
-url: http://localhost:3000/fight
+url: http://localhost:3000/api/battles/fight
 method: POST
 body:
   type: json
   content: "{\r
 
-    \  \"team1\": [\"pikachu\"],\r
+    \  \"team1\": [\"bulbasaur\"],\r
 
-    \  \"team2\": [\"geodude\"]\r
+    \  \"team2\": [\"rattata\"]\r
 
     }"
 order: 4138599464498122

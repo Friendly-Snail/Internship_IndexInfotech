@@ -1,0 +1,43 @@
+$kind: http-example
+name: Requested resource was not found in PokeAPI.
+request:
+  url: "{{baseUrl}}/api/battles/fight"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "team1": [
+          "pikachu"
+        ],
+        "team2": [
+          "geodude"
+        ]
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 3000

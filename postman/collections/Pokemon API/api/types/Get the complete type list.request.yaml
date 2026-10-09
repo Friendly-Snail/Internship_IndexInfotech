@@ -1,0 +1,12 @@
+$kind: http-request
+description: Fetches/caches the complete resource list if necessary, then returns sorted database data.
+url: "{{baseUrl}}/api/types"
+method: GET
+headers:
+  Accept: application/json
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Get the complete type list.resources/examples
+order: 2000

@@ -1,0 +1,47 @@
+$kind: http-example
+name: PokeAPI request timed out.
+request:
+  url: "{{baseUrl}}/api/pokedex/create"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Match BETTER_AUTH_URL. Browsers supply Origin automatically; PowerShell/Postman must supply it explicitly for ownership changes.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: better-auth.session_token
+      value: <API Key>
+      description: "Added as a part of security scheme: apikey"
+  body:
+    type: json
+    content: |-
+      {
+        "pokemon": "pikachu"
+      }
+response:
+  statusCode: 504
+  statusText: Gateway Timeout
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 9000

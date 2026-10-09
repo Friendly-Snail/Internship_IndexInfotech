@@ -1,0 +1,38 @@
+$kind: http-example
+name: Bad Request. Usually due to missing parameters, or invalid parameters.
+request:
+  url: "{{baseUrl}}/api/auth/get-session"
+  method: GET
+  headers:
+    Accept: application/json
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "string",
+        "code": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+order: 2000

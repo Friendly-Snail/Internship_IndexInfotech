@@ -1,4 +1,4 @@
 $kind: http-request
-url: http://localhost:3000/types
+url: http://localhost:3000/api/types
 method: GET
 order: 4503599257779535

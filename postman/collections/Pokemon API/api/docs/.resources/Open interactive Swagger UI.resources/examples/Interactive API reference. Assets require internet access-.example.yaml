@@ -1,0 +1,23 @@
+$kind: http-example
+name: Interactive API reference. Assets require internet access.
+request:
+  url: "{{baseUrl}}/api/docs"
+  method: GET
+  headers:
+    Accept: text/html
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: text/html
+  body:
+    type: text
+    content: string
+    $type: |-
+      {
+        "type": "string"
+      }
+order: 1000

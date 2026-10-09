@@ -1,0 +1,50 @@
+$kind: http-example
+name: Email already exists (USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL), or user creation failed.
+request:
+  url: "{{baseUrl}}/api/auth/sign-up/email"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Recommended for API clients; match BETTER_AUTH_URL. Better Auth rejects untrusted browser origins. Browsers supply this header automatically.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Ash",
+        "email": "ash@example.com",
+        "password": "Pikachu-Test-123!"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "message": "User already exists. Use another email.",
+        "code": "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+order: 6000

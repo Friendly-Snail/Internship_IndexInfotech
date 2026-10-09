@@ -1,0 +1,45 @@
+$kind: http-request
+description: Sign out the current user. Clears any current session cookie; anonymous sign-out also succeeds. Request body is optional.
+url: "{{baseUrl}}/api/auth/sign-out"
+method: POST
+headers:
+  - key: Origin
+    value: http://localhost:3000
+    disabled: false
+    description: Recommended for API clients; match BETTER_AUTH_URL. Better Auth rejects untrusted browser origins. Browsers supply this header automatically.
+    $type: string
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "callbackURL": "string",
+      "disableRedirect": false,
+      "state": "string"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "callbackURL": {
+          "type": "string",
+          "description": "The URL to redirect to after provider logout"
+        },
+        "disableRedirect": {
+          "type": "boolean",
+          "description": "Return the provider logout URL without redirecting"
+        },
+        "state": {
+          "type": "string",
+          "description": "State to pass to the provider logout endpoint"
+        }
+      }
+    }
+auth:
+  type: noauth
+settings: {}
+examples: ./.resources/Sign out the current user.resources/examples
+order: 1000

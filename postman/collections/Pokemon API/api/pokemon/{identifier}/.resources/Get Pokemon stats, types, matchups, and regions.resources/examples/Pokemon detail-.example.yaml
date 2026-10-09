@@ -1,0 +1,259 @@
+$kind: http-example
+name: Pokemon detail.
+request:
+  url: "{{baseUrl}}/api/pokemon/:identifier"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    - key: identifier
+      value: pikachu
+      disabled: false
+      description: Pokemon name or positive ID as a string. Trimmed and lowercased; numeric IDs must be safe integers.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 8616,
+        "name": "string",
+        "stats": {
+          "hp": 1124,
+          "attack": 395,
+          "defense": 9167,
+          "special-attack": 4715,
+          "special-defense": 1470,
+          "speed": 7834
+        },
+        "totalStats": 7587,
+        "types": [
+          "string",
+          "string"
+        ],
+        "defense": {
+          "weakTo": [
+            {
+              "type": "string",
+              "multiplier": 8006.531961718586
+            },
+            {
+              "type": "string",
+              "multiplier": 6474.139588616622
+            }
+          ],
+          "resists": [
+            {
+              "type": "string",
+              "multiplier": 9129.445861444334
+            },
+            {
+              "type": "string",
+              "multiplier": 150.9031413579165
+            }
+          ],
+          "immuneTo": [
+            {
+              "type": "string",
+              "multiplier": 4520.374388471241
+            },
+            {
+              "type": "string",
+              "multiplier": 5585.254541914338
+            }
+          ]
+        },
+        "attackAgainstSingleType": [
+          {
+            "type": "string",
+            "multiplier": 8403.958222679817,
+            "bonus": 3973,
+            "potentialScore": 9971
+          },
+          {
+            "type": "string",
+            "multiplier": 4126.10552506051,
+            "bonus": 9740,
+            "potentialScore": 7366
+          }
+        ],
+        "regions": [
+          "string",
+          "string"
+        ],
+        "regionsComplete": true,
+        "note": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "hp": {
+                "type": "integer"
+              },
+              "attack": {
+                "type": "integer"
+              },
+              "defense": {
+                "type": "integer"
+              },
+              "special-attack": {
+                "type": "integer"
+              },
+              "special-defense": {
+                "type": "integer"
+              },
+              "speed": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "hp",
+              "attack",
+              "defense",
+              "special-attack",
+              "special-defense",
+              "speed"
+            ]
+          },
+          "totalStats": {
+            "type": "integer"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "defense": {
+            "type": "object",
+            "properties": {
+              "weakTo": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "multiplier": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "multiplier"
+                  ]
+                }
+              },
+              "resists": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "multiplier": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "multiplier"
+                  ]
+                }
+              },
+              "immuneTo": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "multiplier": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "multiplier"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "weakTo",
+              "resists",
+              "immuneTo"
+            ]
+          },
+          "attackAgainstSingleType": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "multiplier": {
+                  "type": "number"
+                },
+                "bonus": {
+                  "type": "integer"
+                },
+                "potentialScore": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "type",
+                "multiplier",
+                "bonus",
+                "potentialScore"
+              ]
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regionsComplete": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "stats",
+          "totalStats",
+          "types",
+          "defense",
+          "attackAgainstSingleType",
+          "regions",
+          "regionsComplete",
+          "note"
+        ]
+      }
+order: 1000

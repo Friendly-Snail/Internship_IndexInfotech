@@ -1,0 +1,56 @@
+$kind: http-example
+name: Unique alphabetically sorted cached names.
+request:
+  url: "{{baseUrl}}/api/regions/region-search?region=kanto"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    region: kanto
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "region": "kanto",
+        "count": 1,
+        "pokemon": [
+          "pikachu"
+        ],
+        "scope": "cached pokemon with PokeAPI wild encounters"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "pokemon": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "region",
+          "count",
+          "pokemon",
+          "scope"
+        ]
+      }
+order: 1000

@@ -1,0 +1,12 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/docs"
+method: GET
+headers:
+  Accept: text/html
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Open interactive Swagger UI.resources/examples
+order: 1000

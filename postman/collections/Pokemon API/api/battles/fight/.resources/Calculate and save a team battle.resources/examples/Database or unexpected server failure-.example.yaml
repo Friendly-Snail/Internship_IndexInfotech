@@ -1,0 +1,43 @@
+$kind: http-example
+name: Database or unexpected server failure.
+request:
+  url: "{{baseUrl}}/api/battles/fight"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "team1": [
+          "pikachu"
+        ],
+        "team2": [
+          "geodude"
+        ]
+      }
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 4000

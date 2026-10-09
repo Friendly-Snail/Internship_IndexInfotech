@@ -1,0 +1,58 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/auth/sign-out"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Recommended for API clients; match BETTER_AUTH_URL. Better Auth rejects untrusted browser origins. Browsers supply this header automatically.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "callbackURL": "string",
+        "disableRedirect": false,
+        "state": "string"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Set-Cookie
+      value: string
+      disabled: false
+      description: Expires the session cookie.
+      $type: string
+  body:
+    type: json
+    content: |-
+      {
+        "success": true,
+        "url": "string",
+        "redirect": false
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string",
+            "description": "Provider logout URL when RP-initiated logout is available"
+          },
+          "redirect": {
+            "type": "boolean",
+            "description": "Whether the client should redirect to the provider logout URL"
+          }
+        }
+      }
+order: 1000

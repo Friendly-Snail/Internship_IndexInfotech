@@ -1,0 +1,30 @@
+$kind: http-request
+description: Cached Pokemon with wild encounters; region means encounter location, not generation. Unknown nonempty regions return an empty list. Query is trimmed/lowercased.
+url: "{{baseUrl}}/api/regions/region-search?region=kanto"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: region
+    value: kanto
+    disabled: false
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Search cached Pokemon by region.resources/examples
+order: 1000
