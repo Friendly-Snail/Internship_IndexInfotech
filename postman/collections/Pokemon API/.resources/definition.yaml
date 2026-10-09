@@ -1,0 +1,4 @@
+$kind: collection
+description: "Team battles, Pokemon caching, and trainer Pokedex ownership. Sign up/sign in to receive a session cookie. Public battle/search routes do not require authentication; /api/auth/me and /api/pokedex do. Swagger UI uses browser cookies: sign in with Try it out in this browser, then call protected routes. Its Authorize dialog cannot set an HttpOnly cookie. A PowerShell session is separate from the browser session."
+variables:
+  baseUrl: http://localhost:3000

@@ -1,0 +1,55 @@
+$kind: http-request
+description: "Deletes only your entry; preserves the shared cache, other trainers' entries, and battle history. Cache-Control: no-store."
+url: "{{baseUrl}}/api/pokedex/:pokemonId"
+method: DELETE
+headers:
+  - key: Origin
+    value: http://localhost:3000
+    disabled: false
+    description: Match BETTER_AUTH_URL. Browsers supply Origin automatically; PowerShell/Postman must supply it explicitly for ownership changes.
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+  - key: Accept
+    value: application/json
+pathVariables:
+  - key: pokemonId
+    value: "25"
+    disabled: false
+    description: Positive numeric Pokemon ID from your list as a path string; maximum 2147483647. Names are rejected.
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*|[1-9][0-9]*)$"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+auth:
+  type: apikey
+  credentials:
+    key: better-auth.session_token
+    value: "{{apiKey}}"
+    in: header
+settings: {}
+examples: ./.resources/Remove your ownership entry.resources/examples
+order: 1000

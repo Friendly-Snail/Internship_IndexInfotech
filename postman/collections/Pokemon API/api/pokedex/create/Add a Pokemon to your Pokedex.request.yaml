@@ -1,0 +1,56 @@
+$kind: http-request
+description: "One unique entry per trainer and species. Other trainers may own the same species. Finds/caches the Pokemon before adding ownership. Cache-Control: no-store."
+url: "{{baseUrl}}/api/pokedex/create"
+method: POST
+headers:
+  - key: Origin
+    value: http://localhost:3000
+    disabled: false
+    description: Match BETTER_AUTH_URL. Browsers supply Origin automatically; PowerShell/Postman must supply it explicitly for ownership changes.
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "pokemon": "pikachu"
+    }
+  $type: |-
+    {
+      "description": "Only pokemon is accepted. Use a name or string ID. Identity comes from the session; userId is rejected. Numeric IDs must be safe integers.",
+      "type": "object",
+      "properties": {
+        "pokemon": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*|[1-9][0-9]*)$"
+        }
+      },
+      "required": [
+        "pokemon"
+      ]
+    }
+auth:
+  type: apikey
+  credentials:
+    key: better-auth.session_token
+    value: "{{apiKey}}"
+    in: header
+settings: {}
+examples: ./.resources/Add a Pokemon to your Pokedex.resources/examples
+order: 1000

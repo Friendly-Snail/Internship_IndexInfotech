@@ -1,0 +1,56 @@
+$kind: http-example
+name: Alphabetically sorted cached names.
+request:
+  url: "{{baseUrl}}/api/types/type-search?type=water"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    type: water
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "type": "water",
+        "count": 1,
+        "pokemon": [
+          "squirtle"
+        ],
+        "scope": "cached pokemon"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "pokemon": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "count",
+          "pokemon",
+          "scope"
+        ]
+      }
+order: 1000

@@ -1,0 +1,28 @@
+$kind: http-request
+name: Get the current session
+description: Get the current session. Returns null with no valid session; unlike /api/auth/me, anonymous access does not return 401.
+url: "{{baseUrl}}/api/auth/get-session"
+method: POST
+headers:
+  - key: Origin
+    value: http://localhost:3000
+    disabled: false
+    description: Recommended for API clients; match BETTER_AUTH_URL. Better Auth rejects untrusted browser origins. Browsers supply this header automatically.
+    $type: string
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: "{}"
+  $type: |-
+    {
+      "type": "object",
+      "properties": {}
+    }
+auth:
+  type: noauth
+settings: {}
+examples: ./.resources/Get the current session-1.resources/examples
+order: 2000

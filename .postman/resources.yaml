@@ -1,0 +1,3 @@
+resourceNameMappings:
+  specs:
+    - ../postman/specs/Pokemon API/index.json: Pokemon API
