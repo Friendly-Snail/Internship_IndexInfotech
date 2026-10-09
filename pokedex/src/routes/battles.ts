@@ -1,20 +1,20 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { battleHistory, battleParticipant } from "../db/schema";
+import { battleHistory, battleParticipant } from "../db/schema/pokemon";
 import type { AppDatabase } from "../db/types";
 import type { PokemonService } from "../services/pokemon";
 import type { CachedPokemon, BattleScore } from "../types/pokemon";
 import { fightBodySchema } from "../validation/fight";
 import { decideTeamResult, type TeamTotals } from "../utils/team-results";
 import { scoreTeams } from "../utils/team-matchups";
-import { formatUtcDate } from "../utils/utc";
+import { toUnixSeconds } from "../utils/timestamps";
 
 /**
  * Register team fights and saved battle history.
  *
  * @param database - Database used to save fights and read their participants.
  * @param service - Shared Pokemon lookup helpers.
- * @returns Public POST /fight and GET /battles routes.
+ * @returns Public POST /api/battles/fight and GET /api/battles routes.
  */
 export function createBattleRoutes(database: AppDatabase, service: PokemonService) {
   const routes = new Hono();
@@ -61,7 +61,7 @@ export function createBattleRoutes(database: AppDatabase, service: PokemonServic
     };
   }
 
-  // POST /fight accepts two teams with one to four pokemon per team
+  // POST /api/battles/fight accepts two teams with one to four pokemon per team
   // client request -> hono -> postgresql cache -> pokeapi if needed -> battle calculation -> database insert -> json response
   routes.post(
     "/fight",
@@ -183,9 +183,9 @@ export function createBattleRoutes(database: AppDatabase, service: PokemonServic
     },
   );
 
-  // GET /battles reads saved fights from postgresql without calling pokeapi
+  // GET /api/battles reads saved fights from postgresql without calling pokeapi
   // all battles, including migrated 1v1 records, use team participants
-  routes.get("/battles", async (c) => {
+  routes.get("/", async (c) => {
     const battles = await database.query.battleHistory.findMany({
       orderBy: (battle, { desc }) => [desc(battle.foughtAt), desc(battle.id)],
       with: {
@@ -223,8 +223,9 @@ export function createBattleRoutes(database: AppDatabase, service: PokemonServic
             }));
         return {
           id: battle.id,
-          // format the saved timestamp as the same utc calendar date for every client
-          foughtAt: formatUtcDate(battle.foughtAt),
+          // expose the saved instant as whole Unix seconds, independent of the server time zone
+          // converting the number to regular date will happen in the frontend
+          foughtAt: toUnixSeconds(battle.foughtAt),
           result: battle.result,
           decidedBy: battle.decidedBy,
           team1: {

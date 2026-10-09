@@ -1,0 +1,36 @@
+$kind: http-example
+name: Missing or blank type.
+request:
+  url: "{{baseUrl}}/api/types/type-search?type=water"
+  method: GET
+  headers:
+    Accept: application/json
+  queryParams:
+    type: water
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 2000

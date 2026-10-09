@@ -1,0 +1,39 @@
+$kind: http-example
+name: Requested resource was not found in PokeAPI.
+request:
+  url: "{{baseUrl}}/api/pokemon/:identifier/regions"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    - key: identifier
+      value: pikachu
+      disabled: false
+      description: Pokemon name or positive ID as a string. Trimmed and lowercased; numeric IDs must be safe integers.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 3000

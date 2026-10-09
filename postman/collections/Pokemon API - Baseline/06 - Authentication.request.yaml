@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:3000/api/auth/me
+method: GET
+body:
+  type: json
+  content: ""
+order: 4489871766387199

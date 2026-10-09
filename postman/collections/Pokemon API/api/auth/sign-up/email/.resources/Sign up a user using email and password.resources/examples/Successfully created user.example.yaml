@@ -1,0 +1,112 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/auth/sign-up/email"
+  method: POST
+  headers:
+    - key: Origin
+      value: http://localhost:3000
+      disabled: false
+      description: Recommended for API clients; match BETTER_AUTH_URL. Better Auth rejects untrusted browser origins. Browsers supply this header automatically.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "Ash",
+        "email": "ash@example.com",
+        "password": "Pikachu-Test-123!"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Set-Cookie
+      value: string
+      disabled: false
+      description: Sets the signed HttpOnly cookie; retain it in the client's cookie jar.
+      $type: string
+  body:
+    type: json
+    content: |-
+      {
+        "user": {
+          "id": "string",
+          "email": "hG2LSvkCjv78KOP@bJyMFJoFgihqdniXOzm.jtmq",
+          "name": "string",
+          "emailVerified": true,
+          "createdAt": "1988-09-15T10:19:24.508Z",
+          "updatedAt": "2026-05-23T00:51:00.345Z",
+          "image": "http://DwFTXGCOyqFcYblOHfyJ.yaC9FBjYQH5OzC8I.jHSMLLp3Cn48EE,PITMPyEzgTsFTuXU02KVpp"
+        },
+        "token": null
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Authentication token for the session"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique identifier of the user"
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the user",
+                "format": "email"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the user"
+              },
+              "image": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "The profile image URL of the user",
+                "format": "uri"
+              },
+              "emailVerified": {
+                "type": "boolean",
+                "description": "Whether the email has been verified"
+              },
+              "createdAt": {
+                "type": "string",
+                "description": "When the user was created",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "description": "When the user was last updated",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "email",
+              "name",
+              "emailVerified",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        },
+        "required": [
+          "user"
+        ]
+      }
+order: 1000

@@ -1,0 +1,26 @@
+$kind: http-example
+name: OpenAPI 3.1 document, generated from this configuration.
+request:
+  url: "{{baseUrl}}/api/docs/openapi.json"
+  method: GET
+  headers:
+    Accept: application/json
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key_0": 4181
+      }
+    $type: |-
+      {
+        "type": "object"
+      }
+order: 1000

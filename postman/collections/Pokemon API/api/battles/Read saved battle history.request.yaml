@@ -1,0 +1,12 @@
+$kind: http-request
+description: Public history, newest first; participants ordered by position. Migrated snapshots can be null. foughtAt is an integer Unix timestamp in seconds. No PokeAPI request.
+url: "{{baseUrl}}/api/battles"
+method: GET
+headers:
+  Accept: application/json
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Read saved battle history.resources/examples
+order: 2000

@@ -1,0 +1,39 @@
+$kind: http-example
+name: PokeAPI request timed out.
+request:
+  url: "{{baseUrl}}/api/pokemon/:identifier/regions"
+  method: GET
+  headers:
+    Accept: application/json
+  pathVariables:
+    - key: identifier
+      value: pikachu
+      disabled: false
+      description: Pokemon name or positive ID as a string. Trimmed and lowercased; numeric IDs must be safe integers.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 504
+  statusText: Gateway Timeout
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": "string"
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+order: 6000

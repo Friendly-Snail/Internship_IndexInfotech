@@ -1,0 +1,224 @@
+$kind: http-example
+name: Battle saved, including ties.
+request:
+  url: "{{baseUrl}}/api/battles/fight"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "team1": [
+          "pikachu"
+        ],
+        "team2": [
+          "geodude"
+        ]
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "battleId": 1,
+        "result": "TEAM2_WIN",
+        "decidedBy": "team battle score",
+        "team1": {
+          "score": 220,
+          "pokemon": [
+            {
+              "position": 1,
+              "id": 25,
+              "name": "pikachu",
+              "result": "LOSE",
+              "types": [
+                "electric"
+              ],
+              "totalStats": 320,
+              "typeMultiplier": 0,
+              "battleScore": 220
+            }
+          ]
+        },
+        "team2": {
+          "score": 350,
+          "pokemon": [
+            {
+              "position": 1,
+              "id": 74,
+              "name": "geodude",
+              "result": "WIN",
+              "types": [
+                "rock",
+                "ground"
+              ],
+              "totalStats": 300,
+              "typeMultiplier": 2,
+              "battleScore": 350
+            }
+          ]
+        },
+        "note": "Each Pokemon scores its total base stats plus the rounded average type bonus against all opponents. Team scores sum member scores; this is not the official Pokemon battle system."
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "battleId": {
+            "type": "integer"
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "TEAM1_WIN",
+              "TEAM2_WIN",
+              "TIE"
+            ]
+          },
+          "decidedBy": {
+            "type": "string"
+          },
+          "team1": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "integer"
+              },
+              "pokemon": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "position": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string",
+                      "enum": [
+                        "WIN",
+                        "LOSE",
+                        "TIE"
+                      ]
+                    },
+                    "types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "totalStats": {
+                      "type": "integer"
+                    },
+                    "typeMultiplier": {
+                      "type": "number"
+                    },
+                    "battleScore": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "position",
+                    "id",
+                    "name",
+                    "result",
+                    "types",
+                    "totalStats",
+                    "typeMultiplier",
+                    "battleScore"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "score",
+              "pokemon"
+            ]
+          },
+          "team2": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "integer"
+              },
+              "pokemon": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "position": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string",
+                      "enum": [
+                        "WIN",
+                        "LOSE",
+                        "TIE"
+                      ]
+                    },
+                    "types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "totalStats": {
+                      "type": "integer"
+                    },
+                    "typeMultiplier": {
+                      "type": "number"
+                    },
+                    "battleScore": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "position",
+                    "id",
+                    "name",
+                    "result",
+                    "types",
+                    "totalStats",
+                    "typeMultiplier",
+                    "battleScore"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "score",
+              "pokemon"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "battleId",
+          "result",
+          "decidedBy",
+          "team1",
+          "team2",
+          "note"
+        ]
+      }
+order: 1000

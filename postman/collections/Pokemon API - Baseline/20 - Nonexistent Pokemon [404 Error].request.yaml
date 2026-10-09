@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:3000/api/pokemon/this-pokemon-does-not-exist
+method: GET
+order: 4503599580197131

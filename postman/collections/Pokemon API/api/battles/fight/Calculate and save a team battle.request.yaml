@@ -1,0 +1,44 @@
+$kind: http-request
+description: Public. Teams can have different sizes. Every member is scored against all opponents. Compare team score, then total base stats, then speed; exact equality is a tie. This is not official Pokemon damage. Caches Pokemon and writes battle history. Does not check trainer ownership.
+url: "{{baseUrl}}/api/battles/fight"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "team1": [
+        "pikachu"
+      ],
+      "team2": [
+        "geodude"
+      ]
+    }
+  $type: |-
+    {
+      "description": "Each team has 1–4 members; unequal sizes are allowed. All resolved Pokemon IDs must be distinct across both teams, even when a name and ID identify the same Pokemon. Identifiers are trimmed/lowercased. Safe-integer and resolved-ID checks are enforced at runtime.",
+      "type": "object",
+      "properties": {
+        "team1": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "team2": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "team1",
+        "team2"
+      ]
+    }
+settings: {}
+examples: ./.resources/Calculate and save a team battle.resources/examples
+order: 1000

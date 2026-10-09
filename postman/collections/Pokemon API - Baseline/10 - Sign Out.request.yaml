@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://localhost:3000/api/auth/sign-out
+method: POST
+headers:
+  Origin: http://localhost:3000
+  Content-Type: application/json
+body:
+  type: json
+  content: "{}"
+order: 4503570748653151

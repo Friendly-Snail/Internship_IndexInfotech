@@ -1,0 +1,248 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/battles"
+  method: GET
+  headers:
+    Accept: application/json
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "count": 1,
+        "battles": [
+          {
+            "id": 1,
+            "foughtAt": 1000000000,
+            "result": "TEAM2_WIN",
+            "decidedBy": "team battle score",
+            "team1": {
+              "score": 220,
+              "pokemon": [
+                {
+                  "position": 1,
+                  "id": 25,
+                  "name": "pikachu",
+                  "battleScore": 220,
+                  "totalStats": 320,
+                  "speed": 90,
+                  "typeMultiplier": 0
+                }
+              ]
+            },
+            "team2": {
+              "score": 350,
+              "pokemon": [
+                {
+                  "position": 1,
+                  "id": 74,
+                  "name": "geodude",
+                  "battleScore": 350,
+                  "totalStats": 300,
+                  "speed": 20,
+                  "typeMultiplier": 2
+                }
+              ]
+            }
+          }
+        ]
+      }
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "battles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "foughtAt": {
+                  "type": "integer",
+                  "example": 1000000000,
+                  "description": "Whole Unix seconds since 1970-01-01T00:00:00Z, rounded down.",
+                  "format": "int64"
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "TEAM1_WIN",
+                    "TEAM2_WIN",
+                    "TIE"
+                  ]
+                },
+                "decidedBy": {
+                  "type": "string"
+                },
+                "team1": {
+                  "type": "object",
+                  "properties": {
+                    "score": {
+                      "type": "integer"
+                    },
+                    "pokemon": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "position": {
+                            "type": "integer"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "battleScore": {
+                            "type": "integer"
+                          },
+                          "totalStats": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "speed": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "typeMultiplier": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "position",
+                          "id",
+                          "name",
+                          "battleScore",
+                          "totalStats",
+                          "speed",
+                          "typeMultiplier"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "score",
+                    "pokemon"
+                  ]
+                },
+                "team2": {
+                  "type": "object",
+                  "properties": {
+                    "score": {
+                      "type": "integer"
+                    },
+                    "pokemon": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "position": {
+                            "type": "integer"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "battleScore": {
+                            "type": "integer"
+                          },
+                          "totalStats": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "speed": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "typeMultiplier": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "position",
+                          "id",
+                          "name",
+                          "battleScore",
+                          "totalStats",
+                          "speed",
+                          "typeMultiplier"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "score",
+                    "pokemon"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "foughtAt",
+                "result",
+                "decidedBy",
+                "team1",
+                "team2"
+              ]
+            }
+          }
+        },
+        "required": [
+          "count",
+          "battles"
+        ]
+      }
+order: 1000

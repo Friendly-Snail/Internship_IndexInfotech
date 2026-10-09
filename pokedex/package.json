@@ -12,7 +12,8 @@
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
     "format": "oxfmt src test drizzle.config.ts package.json tsconfig.json .oxfmtrc.json",
     "format:check": "oxfmt --check src test drizzle.config.ts package.json tsconfig.json .oxfmtrc.json",
-    "lint": "oxlint ."
+    "lint": "oxlint .",
+    "auth:generate": "bunx --bun auth@1.7.7 generate --config ./src/auth.ts --output ./src/db/schema/auth-schema.ts --yes"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.7",

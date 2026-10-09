@@ -1,0 +1,12 @@
+$kind: http-request
+description: Public API discovery with HTTP methods and current URLs.
+url: "{{baseUrl}}/"
+method: GET
+headers:
+  Accept: application/json
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/List available endpoints.resources/examples
+order: 1000

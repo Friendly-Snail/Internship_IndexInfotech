@@ -85,6 +85,13 @@
       "when": 1790992477456,
       "tag": "0011_pokedex_ownership",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791551598338,
+      "tag": "0012_thin_fenris",
+      "breakpoints": true
     }
   ]
 }

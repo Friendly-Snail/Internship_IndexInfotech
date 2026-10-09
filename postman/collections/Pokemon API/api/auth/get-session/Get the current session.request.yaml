@@ -1,0 +1,14 @@
+$kind: http-request
+description: Get the current session. Returns null with no valid session; unlike /api/auth/me, anonymous access does not return 401.
+url: "{{baseUrl}}/api/auth/get-session"
+method: GET
+headers:
+  Accept: application/json
+body:
+  type: text
+  content: ""
+auth:
+  type: noauth
+settings: {}
+examples: ./.resources/Get the current session.resources/examples
+order: 1000
