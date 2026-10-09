@@ -7,7 +7,7 @@ import type { CachedPokemon, BattleScore } from "../types/pokemon";
 import { fightBodySchema } from "../validation/fight";
 import { decideTeamResult, type TeamTotals } from "../utils/team-results";
 import { scoreTeams } from "../utils/team-matchups";
-import { formatUtcDate } from "../utils/utc";
+import { toUnixSeconds } from "../utils/timestamps";
 
 /**
  * Register team fights and saved battle history.
@@ -223,8 +223,9 @@ export function createBattleRoutes(database: AppDatabase, service: PokemonServic
             }));
         return {
           id: battle.id,
-          // format the saved timestamp as the same utc calendar date for every client
-          foughtAt: formatUtcDate(battle.foughtAt),
+          // expose the saved instant as whole Unix seconds, independent of the server time zone
+          // converting the number to regular date will happen in the frontend
+          foughtAt: toUnixSeconds(battle.foughtAt),
           result: battle.result,
           decidedBy: battle.decidedBy,
           team1: {

@@ -151,7 +151,12 @@ const schemas: Record<string, SchemaObject> = {
   HistoryTeam: object({ score: integer, pokemon: array(ref("HistoryMember")) }),
   BattleHistory: object({
     id: integer,
-    foughtAt: { type: "string", format: "date", description: "UTC calendar date, YYYY-MM-DD." },
+    foughtAt: {
+      type: "integer",
+      format: "int64",
+      description: "Whole Unix seconds since 1970-01-01T00:00:00Z, rounded down.",
+      example: 1_000_000_000,
+    },
     result: ref("BattleResult"),
     decidedBy: text,
     team1: ref("HistoryTeam"),
@@ -386,7 +391,7 @@ export async function createOpenApiDocument(auth: Auth): Promise<OpenAPIObject> 
           "Read saved battle history",
           "Battles",
           "BattlesResponse",
-          "Public history, newest first; participants ordered by position. Migrated snapshots can be null. foughtAt is a UTC date. No PokeAPI request.",
+          "Public history, newest first; participants ordered by position. Migrated snapshots can be null. foughtAt is an integer Unix timestamp in seconds. No PokeAPI request.",
         ),
       },
       "/api/types/type-search": {
