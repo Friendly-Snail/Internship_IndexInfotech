@@ -26,6 +26,7 @@ export function createSearchRoutes(database: AppDatabase) {
   // GET /search-by-type?type=water
   // search the cached pokemon by their type rows
   // this list grows as fights cache more pokemon, so it is not the full pokeapi roster
+  // TODO change `search-by-type` to `type-search`
   routes.get("/search-by-type", async (c) => {
     const type = normalizeIdentifier(c.req.query("type"));
     if (!type) return c.json({ error: "Provide a Pokemon type using ?type=fire" }, 400);
@@ -40,6 +41,7 @@ export function createSearchRoutes(database: AppDatabase) {
 
   // show pokemon with documented wild encounters in the requested region
   // only pokemon whose encounter locations have been checked are included
+  // TODO change `search-by-region` to `type-region`
   routes.get("/search-by-region", async (c) => {
     const name = normalizeIdentifier(c.req.query("region"));
     if (!name) return c.json({ error: "Provide a region using ?region=kanto" }, 400);

@@ -63,6 +63,7 @@ export function createPokedexRoutes(
     return c.json({ count: entries.length, entries });
   });
 
+  // TODO change `post` url to `create`
   routes.post("/", zValidator("json", addPokemonBody), async (c) => {
     const cached = await findOrCachePokemon(c.req.valid("json").pokemon);
     // the composite key handles simultaneous adds as well as repeated requests
