@@ -641,3 +641,76 @@ button:disabled {
     padding: 12px 8px;
   }
 }
+
+/* Independent type and region search panels */
+.search-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+.search-panel {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 0;
+}
+.cache-explanation {
+  color: var(--muted);
+  font-size: 13px;
+}
+.search-panel label {
+  display: block;
+  font-weight: 700;
+  font-size: 13px;
+  margin: 22px 0 10px;
+}
+.search-controls select {
+  min-width: 0;
+  flex: 1;
+  padding: 13px;
+  font: inherit;
+  font-size: 14px;
+  color: #302642;
+  background: #fdfbff;
+  border: 1px solid #cfc0df;
+  border-radius: 9px;
+}
+.search-controls select:focus-visible {
+  outline: 3px solid #9d6ce3;
+  outline-offset: 2px;
+}
+.search-results {
+  margin-top: 24px;
+}
+.result-count {
+  font-size: 14px;
+}
+.search-results table {
+  margin-top: 24px;
+}
+.pokemon-name-cell {
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+.search-empty {
+  background: #f7f2fd;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 18px;
+}
+.search-empty h3 {
+  font-size: 16px;
+  margin-top: 0;
+}
+.search-empty p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+@media (max-width: 1050px) {
+  .search-panel-grid {
+    grid-template-columns: 1fr;
+  }
+}
