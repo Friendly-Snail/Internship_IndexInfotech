@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PokemonPage } from "./pages/PokemonPage";
 import { Layout } from "./components/Layout";
 import type { PageId } from "./components/Layout";
 
@@ -94,6 +95,8 @@ export function App() {
             </div>
           </section>
         </>
+      ) : activePage === "pokemon" ? (
+        <PokemonPage />
       ) : (
         <section className="feature-page" aria-labelledby="page-title">
           <p className="eyebrow">{feature?.tag}</p>
