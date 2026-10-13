@@ -15,6 +15,11 @@ workflows:
       options:
         syncExamples: false
         deleteOrphanedRequests: false
+    - spec: ../postman/specs/Pokemon API-2/index.json
+      collection: ../postman/collections/Pokemon API
+      options:
+        syncExamples: false
+        deleteOrphanedRequests: false
   syncCollectionToSpec:
     - spec: ../postman/specs/Pokemon API/index.json
       collection: ../postman/collections/Pokemon API
@@ -22,6 +27,11 @@ workflows:
         syncExamples: false
         deleteOrphanedRequests: false
     - spec: ../postman/specs/Pokemon API-1/index.json
+      collection: ../postman/collections/Pokemon API
+      options:
+        syncExamples: false
+        deleteOrphanedRequests: false
+    - spec: ../postman/specs/Pokemon API-2/index.json
       collection: ../postman/collections/Pokemon API
       options:
         syncExamples: false

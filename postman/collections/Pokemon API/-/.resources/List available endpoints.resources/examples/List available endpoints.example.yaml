@@ -18,7 +18,8 @@ response:
       {
         "message": "string",
         "endpoints": {
-          "key_0": "string"
+          "key_0": "string",
+          "key_1": "string"
         }
       }
     $type: |-

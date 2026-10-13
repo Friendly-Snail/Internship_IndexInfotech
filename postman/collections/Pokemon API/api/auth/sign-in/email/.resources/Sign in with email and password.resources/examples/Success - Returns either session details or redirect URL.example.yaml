@@ -40,8 +40,8 @@ response:
           "name": "string",
           "email": "string",
           "emailVerified": false,
-          "createdAt": "2024-09-03T19:29:37.878Z",
-          "updatedAt": "1997-04-16T23:23:42.051Z",
+          "createdAt": "2009-11-16T11:24:53.671Z",
+          "updatedAt": "1951-07-03T03:56:13.776Z",
           "image": "string"
         },
         "url": "string"

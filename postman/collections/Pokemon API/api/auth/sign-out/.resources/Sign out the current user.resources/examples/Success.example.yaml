@@ -34,7 +34,7 @@ response:
     type: json
     content: |-
       {
-        "success": false,
+        "success": true,
         "url": "string",
         "redirect": false
       }

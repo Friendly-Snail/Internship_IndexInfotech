@@ -17,8 +17,9 @@ response:
     type: json
     content: |-
       {
-        "key_0": 9247,
-        "key_1": true
+        "key_0": "string",
+        "key_1": 1901.5722423895354,
+        "key_2": 5014.712926895868
       }
     $type: |-
       {

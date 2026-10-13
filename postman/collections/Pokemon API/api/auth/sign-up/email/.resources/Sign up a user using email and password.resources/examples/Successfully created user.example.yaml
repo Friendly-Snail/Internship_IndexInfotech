@@ -36,14 +36,14 @@ response:
       {
         "user": {
           "id": "string",
-          "email": "Gibd0@PSUFtXONUDjajkFky.hlrz",
+          "email": "2w7Ob2k@XIeCnKUKfhQXrXufAONABXaSFDtxRfGB.mf",
           "name": "string",
           "emailVerified": false,
-          "createdAt": "1977-09-25T20:43:52.532Z",
-          "updatedAt": "1990-01-23T09:22:08.450Z",
+          "createdAt": "1972-09-16T18:35:56.028Z",
+          "updatedAt": "2020-01-14T19:54:47.626Z",
           "image": null
         },
-        "token": null
+        "token": "string"
       }
     $type: |-
       {
