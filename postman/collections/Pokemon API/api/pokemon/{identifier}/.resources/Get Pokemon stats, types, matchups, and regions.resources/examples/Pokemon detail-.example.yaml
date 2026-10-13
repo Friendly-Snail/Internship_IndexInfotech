@@ -22,17 +22,17 @@ response:
     type: json
     content: |-
       {
-        "id": 8616,
+        "id": 4276,
         "name": "string",
         "stats": {
-          "hp": 1124,
-          "attack": 395,
-          "defense": 9167,
-          "special-attack": 4715,
-          "special-defense": 1470,
-          "speed": 7834
+          "hp": 6013,
+          "attack": 1216,
+          "defense": 5082,
+          "special-attack": 2945,
+          "special-defense": 3680,
+          "speed": 3030
         },
-        "totalStats": 7587,
+        "totalStats": 685,
         "types": [
           "string",
           "string"
@@ -41,46 +41,46 @@ response:
           "weakTo": [
             {
               "type": "string",
-              "multiplier": 8006.531961718586
+              "multiplier": 293.1389066523105
             },
             {
               "type": "string",
-              "multiplier": 6474.139588616622
+              "multiplier": 9017.856643528263
             }
           ],
           "resists": [
             {
               "type": "string",
-              "multiplier": 9129.445861444334
+              "multiplier": 635.5261655859979
             },
             {
               "type": "string",
-              "multiplier": 150.9031413579165
+              "multiplier": 2420.932776793733
             }
           ],
           "immuneTo": [
             {
               "type": "string",
-              "multiplier": 4520.374388471241
+              "multiplier": 6049.241151275735
             },
             {
               "type": "string",
-              "multiplier": 5585.254541914338
+              "multiplier": 6345.119513603492
             }
           ]
         },
         "attackAgainstSingleType": [
           {
             "type": "string",
-            "multiplier": 8403.958222679817,
-            "bonus": 3973,
-            "potentialScore": 9971
+            "multiplier": 1367.4041420028327,
+            "bonus": 415,
+            "potentialScore": 6414
           },
           {
             "type": "string",
-            "multiplier": 4126.10552506051,
-            "bonus": 9740,
-            "potentialScore": 7366
+            "multiplier": 7751.559998679086,
+            "bonus": 7030,
+            "potentialScore": 1586
           }
         ],
         "regions": [

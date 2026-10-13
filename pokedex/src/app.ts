@@ -2,16 +2,16 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { HTTPError, NetworkError, TimeoutError } from "ky";
 import type { Auth } from "./auth";
-import type { AppDatabase } from "./db/types";
+import type { db } from "./db";
 import type { PokemonService } from "./services/pokemon";
 import { createAuthRoutes } from "./routes/auth";
 import { createDocsRoutes } from "./routes/docs";
 import { createPokedexRoutes } from "./routes/pokedex";
 import { createDiscoveryRoutes } from "./routes/discovery";
 import { createBattleRoutes } from "./routes/battles";
-import { createTypeSearchRoutes, createRegionSearchRoutes } from "./routes/search";
+import { createTypeRoutes } from "./routes/types";
+import { createRegionRoutes } from "./routes/regions";
 import { createPokemonRoutes } from "./routes/pokemon";
-import { createTypeResourceRoutes, createRegionResourceRoutes } from "./routes/resources";
 
 /**
  * Assemble the API routes and shared error handlers using one set of dependencies
@@ -21,7 +21,7 @@ import { createTypeResourceRoutes, createRegionResourceRoutes } from "./routes/r
  * @param service - Shared Pokemon cache and PokeAPI helpers
  * @returns The Hono application ready to receive requests
  */
-export function createApp(auth: Auth, database: AppDatabase, service: PokemonService) {
+export function createApp(auth: Auth, database: typeof db, service: PokemonService) {
   const app = new Hono();
   // mount each router under its resource; paths inside routers stay relative
   app.route("/", createDiscoveryRoutes());
@@ -30,10 +30,8 @@ export function createApp(auth: Auth, database: AppDatabase, service: PokemonSer
   app.route("/api/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
   app.route("/api/battles", createBattleRoutes(database, service));
   app.route("/api/pokemon", createPokemonRoutes(database, service));
-  app.route("/api/types", createTypeResourceRoutes(service)); // TODO fix double up
-  app.route("/api/types", createTypeSearchRoutes(database)); // TODO
-  app.route("/api/regions", createRegionResourceRoutes(service)); // TODO
-  app.route("/api/regions", createRegionSearchRoutes(database)); // TODO
+  app.route("/api/types", createTypeRoutes(database, service));
+  app.route("/api/regions", createRegionRoutes(database, service));
   // if no route above matches the requested path, return a normal HTTP 404 json response instead of an html error page
   app.notFound((c) => c.json({ error: "Not Found" }, 404));
   // route errors arrive here once; failed cache operations never look successful

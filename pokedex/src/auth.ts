@@ -2,28 +2,18 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { db } from "./db";
 import * as schema from "./db/schema/auth-schema";
-import { authOptions } from "./auth/config";
-
-// require explicit configuration; never use a shared fallback signing secret
-const baseURL = Bun.env.BETTER_AUTH_URL ?? "";
-const secret = Bun.env.BETTER_AUTH_SECRET ?? "";
-
-if (!secret || secret.length < 32) {
-  throw new Error("BETTER_AUTH_SECRET must contain at least 32 characters.");
-}
-if (!URL.canParse(baseURL)) {
-  throw new Error("BETTER_AUTH_URL is required, for example http://localhost:3000.");
-}
-const origin = new URL(baseURL);
-if (!["http:", "https:"].includes(origin.protocol) || origin.origin !== baseURL) {
-  throw new Error("BETTER_AUTH_URL must be an origin, such as http://localhost:3000.");
-}
+import { openAPI } from "better-auth/plugins";
+import { env } from "./env";
 
 // one configured instance shared by the running application
 export const auth = betterAuth({
-  ...authOptions,
-  baseURL,
-  secret,
+  basePath: "/api/auth",
+  emailAndPassword: { enabled: true },
+  plugins: [openAPI({ disableDefaultReference: true })],
+  // keep origin and CSRF checks active for cookie-based authentication
+  advanced: { disableOriginCheck: false, disableCSRFCheck: false },
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg", schema, transaction: true }),
 });
 

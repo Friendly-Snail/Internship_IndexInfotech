@@ -21,7 +21,28 @@ response:
     Content-Type: application/json
   body:
     type: json
-    content: "null"
+    content: |-
+      {
+        "session": {
+          "id": "string",
+          "expiresAt": "1951-02-19T11:26:54.943Z",
+          "token": "string",
+          "createdAt": "2009-03-06T07:05:52.405Z",
+          "updatedAt": "1988-10-27T22:43:06.469Z",
+          "userId": "string",
+          "ipAddress": "string",
+          "userAgent": "string"
+        },
+        "user": {
+          "id": "string",
+          "name": "string",
+          "email": "string",
+          "emailVerified": false,
+          "createdAt": "2017-10-02T11:23:42.436Z",
+          "updatedAt": "2010-02-26T05:26:19.414Z",
+          "image": "string"
+        }
+      }
     $type: |-
       {
         "type": [

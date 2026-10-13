@@ -13,17 +13,25 @@
     "format": "oxfmt src test drizzle.config.ts package.json tsconfig.json .oxfmtrc.json",
     "format:check": "oxfmt --check src test drizzle.config.ts package.json tsconfig.json .oxfmtrc.json",
     "lint": "oxlint .",
-    "auth:generate": "bunx --bun auth@1.7.7 generate --config ./src/auth.ts --output ./src/db/schema/auth-schema.ts --yes"
+    "auth:generate": "bunx --bun auth@1.7.7 generate --config ./src/auth.ts --output ./src/db/schema/auth-schema.ts --yes",
+    "db:up": "docker compose up -d --wait --wait-timeout 90 postgres",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs --tail=100 postgres",
+    "db:check": "bun scripts/check-db.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.7",
     "@hono/swagger-ui": "^0.6.1",
     "@hono/zod-validator": "^0.9.1",
+    "@t3-oss/env-core": "^0.13.11",
     "better-auth": "1.7.7",
+    "date-fns": "^4.4.0",
     "drizzle-orm": "0.45.2",
     "hono": "^4.0.0",
     "ky": "^2.1.0",
     "postgres": "^3.4.9",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -31,6 +39,8 @@
     "@electric-sql/pglite": "0.3.14",
     "@types/bun": "latest",
     "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "drizzle-kit": "^0.31.0",
