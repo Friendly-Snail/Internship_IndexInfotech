@@ -835,3 +835,100 @@ button:disabled {
     margin: 4px 0;
   }
 }
+
+/* Trainer account and owned Pokemon */
+.auth-card,
+.trainer-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 24px;
+}
+.auth-card {
+  max-width: 520px;
+}
+.auth-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.auth-modes [aria-pressed="true"] {
+  background: #eee5fb;
+  border-color: #aa85dc;
+}
+.auth-form {
+  display: grid;
+  gap: 18px;
+}
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.auth-form input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  padding: 12px;
+  border: 1px solid #cfc0df;
+  border-radius: 9px;
+  color: #302642;
+  background: #fdfbff;
+}
+.auth-form input:focus-visible {
+  outline: 3px solid #9d6ce3;
+  outline-offset: 2px;
+}
+.auth-form .button-primary {
+  justify-content: center;
+}
+.session-refresh {
+  margin-top: 20px;
+  background: transparent;
+  border: 0;
+  color: var(--purple);
+  text-decoration: underline;
+  padding: 8px 0;
+}
+.trainer-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.trainer-card p {
+  overflow-wrap: anywhere;
+}
+.trainer-card h2 {
+  margin-bottom: 8px;
+}
+.trainer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.success-message {
+  background: #eef8f0;
+  color: #235f38;
+  border: 1px solid #c1dfc9;
+  border-radius: 10px;
+  padding: 16px;
+}
+.owned-section {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .auth-card,
+  .trainer-card,
+  .owned-section {
+    padding: 20px;
+  }
+}
