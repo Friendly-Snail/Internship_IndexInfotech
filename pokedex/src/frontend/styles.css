@@ -714,3 +714,124 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* Battle entry, results, and expandable history */
+.battle-form,
+.battle-result {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+}
+.team-input-grid,
+.battle-team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.team-input-grid {
+  margin: 20px 0;
+}
+.team-input-grid label {
+  font-size: 14px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 10px;
+}
+.team-input-grid textarea {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+  font-size: 14px;
+  padding: 14px;
+  color: #302642;
+  background: #fdfbff;
+  border: 1px solid #cfc0df;
+  border-radius: 9px;
+}
+.team-input-grid textarea:focus-visible {
+  outline: 3px solid #9d6ce3;
+  outline-offset: 2px;
+}
+.team-summary {
+  min-width: 0;
+}
+.team-score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.team-score strong {
+  color: var(--purple);
+  font-size: 13px;
+}
+.battle-table-wrap {
+  overflow-x: auto;
+}
+.battle-table-wrap table {
+  min-width: 340px;
+}
+.battle-table-wrap caption {
+  font-size: 13px;
+}
+.battle-table-wrap th,
+.battle-table-wrap td {
+  padding: 12px 8px;
+  font-size: 12px;
+}
+.history-section {
+  margin-top: 40px;
+}
+.battle-history-list {
+  display: grid;
+  gap: 12px;
+}
+.history-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.history-card summary {
+  cursor: pointer;
+  padding: 18px 20px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.history-card summary > * {
+  margin-right: 16px;
+}
+.history-card summary strong {
+  color: var(--purple);
+}
+.history-card summary:focus-visible {
+  outline: 3px solid #9d6ce3;
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+.history-detail {
+  border-top: 1px solid var(--line);
+  padding: 20px;
+}
+.history-detail > p {
+  font-size: 13px;
+}
+@media (max-width: 1050px) {
+  .battle-team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .team-input-grid {
+    grid-template-columns: 1fr;
+  }
+  .battle-form,
+  .battle-result {
+    padding: 20px;
+  }
+  .history-card summary > * {
+    display: block;
+    margin: 4px 0;
+  }
+}
