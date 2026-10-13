@@ -1,3 +1,4 @@
+import { env } from "./env";
 import { auth } from "./auth";
 import { db } from "./db";
 import { createApp } from "./app";
@@ -6,9 +7,8 @@ import { createPokemonService } from "./services/pokemon";
 const service = createPokemonService();
 const app = createApp(auth, db, service);
 
-// Bun.env reads environment variables, including PORT from the .env file
-// ?? 3000 provides a fallback so the server still has a port when PORT is not configured
-const port = Number(Bun.env.PORT ?? 3000);
+// PORT is already parsed and validated as a number.
+const port = env.PORT;
 const serverUrl = `http://localhost:${port}/`;
 
 // these messages are just a developer cheat sheet printed when the program starts
