@@ -1,11 +1,11 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useForm, useSelector } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { errorMessage } from "#/lib/api-errors";
 import { orpc } from "#/orpc/client";
 import { formatUnixDate } from "#/utils/timestamps";
-import { fightBodySchema } from "#/validation/fight";
+import { visibleFormError } from "#/lib/form-errors";
+import { battleForm } from "#/validation/forms";
 
 export const Route = createFileRoute("/battles")({ component: BattlesPage });
 
@@ -21,24 +21,6 @@ type BattleTeam = {
     typeMultiplier: number | null;
   }[];
 };
-
-/** Parse comma/newline-separated identifiers using the same rules as the server. */
-function parseTeams(first: string, second: string) {
-  const split = (value: string) =>
-    value
-      .split(/[,\n]/)
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  const parsed = fightBodySchema.safeParse({ team1: split(first), team2: split(second) });
-  if (!parsed.success)
-    throw new Error(
-      "Each team needs 1–4 Pokémon names or positive IDs, separated by commas or new lines.",
-    );
-  const entries = [...parsed.data.team1, ...parsed.data.team2];
-  if (new Set(entries).size !== entries.length)
-    throw new Error("Use a different Pokémon in every team position.");
-  return parsed.data;
-}
 
 const outcomeLabel = (result: BattleOutcome) =>
   result === "TIE" ? "Tie" : result === "TEAM1_WIN" ? "Team 1 wins" : "Team 2 wins";
@@ -82,9 +64,6 @@ function TeamSummary({ team, number }: { team: BattleTeam; number: number }) {
 
 function BattlesPage() {
   const queryClient = useQueryClient();
-  const [team1, setTeam1] = useState("");
-  const [team2, setTeam2] = useState("");
-  const [parseError, setParseError] = useState("");
   const historyQuery = useQuery(orpc.battles.list.queryOptions());
   const fightMutation = useMutation(
     orpc.battles.fight.mutationOptions({
@@ -95,6 +74,20 @@ function BattlesPage() {
 
   const fighting = fightMutation.isPending;
   const result = fightMutation.data;
+
+  const form = useForm({
+    defaultValues: { team1: "", team2: "" },
+    // running on mount and on change keeps canSubmit current
+    validators: { onMount: battleForm, onChange: battleForm },
+    onSubmit: ({ value }) => {
+      // the pending check also prevents repeated submissions
+      if (fighting) return;
+      fightMutation.reset();
+      fightMutation.mutate(battleForm.parse(value));
+    },
+  });
+  const canSubmit = useSelector(form.store, (state) => state.canSubmit);
+  const parseError = useSelector(form.store, visibleFormError);
   const fightError =
     parseError ||
     (fightMutation.isError
@@ -113,28 +106,19 @@ function BattlesPage() {
         )
       : "";
 
-  function fight(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    // the pending check also prevents repeated submissions
-    if (fighting) return;
-    setParseError("");
-    fightMutation.reset();
-    let teams;
-    try {
-      teams = parseTeams(team1, team2);
-    } catch (error) {
-      setParseError(error instanceof Error ? error.message : "Check the teams.");
-      return;
-    }
-    fightMutation.mutate(teams);
-  }
-
   return (
     <section className="feature-page" aria-labelledby="page-title">
       <p className="eyebrow">TEAM BATTLES</p>
       <h1 id="page-title">Build a rivalry</h1>
       <p className="page-description">Pick your teams and compare their stats and type matchups.</p>
-      <form className="battle-form" onSubmit={fight} noValidate>
+      <form
+        className="battle-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+        noValidate
+      >
         <p id="team-hint" className="cache-explanation">
           Enter 1–4 names or IDs per team, separated by commas or new lines. Unequal teams are
           welcome. Every Pokémon must be different, including names and IDs referring to the same
@@ -144,20 +128,26 @@ function BattlesPage() {
           {([1, 2] as const).map((number) => (
             <div key={number}>
               <label htmlFor={`team-${number}`}>Team {number}</label>
-              <textarea
-                id={`team-${number}`}
-                value={number === 1 ? team1 : team2}
-                onChange={(event) => (number === 1 ? setTeam1 : setTeam2)(event.target.value)}
-                placeholder={number === 1 ? "pikachu, bulbasaur" : "geodude, charmander"}
-                rows={3}
-                disabled={fighting}
-                aria-describedby="team-hint"
-                spellCheck={false}
-              />
+              <form.Field name={`team${number}`}>
+                {(field) => (
+                  <textarea
+                    id={`team-${number}`}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder={number === 1 ? "pikachu, bulbasaur" : "geodude, charmander"}
+                    rows={3}
+                    disabled={fighting}
+                    aria-describedby="team-hint"
+                    spellCheck={false}
+                  />
+                )}
+              </form.Field>
             </div>
           ))}
         </div>
-        <button className="button-primary" type="submit" disabled={fighting}>
+        <button className="button-primary" type="submit" disabled={fighting || !canSubmit}>
           {fighting ? "Battling…" : "Start battle"}
         </button>
       </form>

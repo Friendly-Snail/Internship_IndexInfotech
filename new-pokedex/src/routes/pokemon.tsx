@@ -1,10 +1,11 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import { useForm, useSelector } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { errorMessage } from "#/lib/api-errors";
 import { orpc } from "#/orpc/client";
-import { pokemonIdentifier } from "#/validation/fight";
+import { visibleFormError } from "#/lib/form-errors";
+import { pokemonSearchForm } from "#/validation/forms";
 
 export const Route = createFileRoute("/pokemon")({ component: PokemonPage });
 
@@ -19,30 +20,25 @@ const stats = [
 
 /** Search state belongs to this page; the API handles caching and stat calculations. */
 function PokemonPage() {
-  const [identifier, setIdentifier] = useState("");
   // the normalized identifier of the last valid search; null before the first search
   const [submitted, setSubmitted] = useState<string | null>(null);
-  const [inputError, setInputError] = useState("");
   const lookup = useQuery({
     ...orpc.pokemon.get.queryOptions({ input: { identifier: submitted ?? "" } }),
     enabled: submitted !== null,
   });
-
-  function search(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setInputError("");
-    const parsed = pokemonIdentifier.safeParse(identifier);
-    if (!parsed.success) {
-      setSubmitted(null);
-      setInputError(
-        "Enter a Pokémon name such as pikachu or mr-mime, or a positive ID such as 25.",
-      );
-      return;
-    }
-    // searching the same Pokémon again asks the API again, like a new search
-    if (parsed.data === submitted) void lookup.refetch();
-    else setSubmitted(parsed.data);
-  }
+  const form = useForm({
+    defaultValues: { identifier: "" },
+    // checked on mount and on every change so canSubmit always reflects the current input
+    validators: { onMount: pokemonSearchForm, onChange: pokemonSearchForm },
+    onSubmit: ({ value }) => {
+      const { identifier } = pokemonSearchForm.parse(value);
+      // searching the same Pokémon again asks the API again, like a new search
+      if (identifier === submitted) void lookup.refetch();
+      else setSubmitted(identifier);
+    },
+  });
+  const canSubmit = useSelector(form.store, (state) => state.canSubmit);
+  const inputError = useSelector(form.store, visibleFormError);
 
   const loading = lookup.isFetching;
   const pokemon = loading ? undefined : lookup.data;
@@ -62,21 +58,34 @@ function PokemonPage() {
       <p className="page-description">
         A familiar favorite or a new discovery. Explore its types and base stats.
       </p>
-      <form className="pokemon-search" onSubmit={search} noValidate>
+      <form
+        className="pokemon-search"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+        noValidate
+      >
         <label htmlFor="pokemon-identifier">Pokémon name or ID</label>
         <div className="search-controls">
-          <input
-            id="pokemon-identifier"
-            value={identifier}
-            onChange={(event) => setIdentifier(event.target.value)}
-            placeholder="e.g. pikachu or 25"
-            maxLength={255}
-            autoComplete="off"
-            spellCheck={false}
-            aria-describedby={error ? "search-hint search-error" : "search-hint"}
-            aria-invalid={Boolean(error)}
-          />
-          <button className="button-primary" type="submit" disabled={loading}>
+          <form.Field name="identifier">
+            {(field) => (
+              <input
+                id="pokemon-identifier"
+                name={field.name}
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={field.handleBlur}
+                placeholder="e.g. pikachu or 25"
+                maxLength={255}
+                autoComplete="off"
+                spellCheck={false}
+                aria-describedby={error ? "search-hint search-error" : "search-hint"}
+                aria-invalid={Boolean(error)}
+              />
+            )}
+          </form.Field>
+          <button className="button-primary" type="submit" disabled={loading || !canSubmit}>
             {loading ? "Searching…" : "Search Pokémon"}
           </button>
         </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { errorMessage } from "#/lib/api-errors";
@@ -13,7 +13,6 @@ const unreachable = "Could not reach the API. Check your connection and try agai
 
 /** Each panel keeps its own options, request, result, and error state. */
 function SearchPanel({ kind }: { kind: SearchKind }) {
-  const [choice, setChoice] = useState("");
   // the option of the last search; null until the user selects Search
   const [submitted, setSubmitted] = useState<string | null>(null);
   const label = kind === "type" ? "Type" : "Region";
@@ -44,25 +43,20 @@ function SearchPanel({ kind }: { kind: SearchKind }) {
   const optionsLoading = optionsQuery.isFetching;
   const optionsError =
     optionsQuery.isError && !optionsLoading ? errorMessage(optionsQuery.error, unreachable) : "";
-  // default to the first option until the user picks one
-  const selected = choice || options[0] || "";
   const loading = resultQuery.isFetching;
-  const error =
-    resultQuery.isError && !loading ? errorMessage(resultQuery.error, unreachable) : "";
+  const error = resultQuery.isError && !loading ? errorMessage(resultQuery.error, unreachable) : "";
   const result = loading ? undefined : resultQuery.data;
 
-  function changeSelection(value: string) {
-    setChoice(value);
-    setSubmitted(null);
-  }
-
-  function search(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!selected || optionsLoading || optionsError) return;
-    // searching the same option again asks the API again, like a new search
-    if (selected === submitted) void resultQuery.refetch();
-    else setSubmitted(selected);
-  }
+  const form = useForm({
+    defaultValues: { choice: "" },
+    onSubmit: ({ value }) => {
+      const selected = value.choice || options[0] || "";
+      if (!selected || optionsLoading || optionsError) return;
+      // searching the same option again asks the API again, like a new search
+      if (selected === submitted) void resultQuery.refetch();
+      else setSubmitted(selected);
+    },
+  });
 
   return (
     <section className="search-panel" aria-labelledby={`${kind}-title`}>
@@ -72,34 +66,49 @@ function SearchPanel({ kind }: { kind: SearchKind }) {
           ? "Shows matching Pokémon already cached in this app. This is not the full PokeAPI roster."
           : "Shows cached Pokémon with recorded wild encounters in this region. A region describes encounter locations, not a Pokémon’s generation."}
       </p>
-      <form onSubmit={search}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
         <label htmlFor={`${kind}-select`}>{label}</label>
-        <div className="search-controls">
-          <select
-            id={`${kind}-select`}
-            value={selected}
-            onChange={(event) => changeSelection(event.target.value)}
-            disabled={optionsLoading || Boolean(optionsError) || !options.length}
-          >
-            {!options.length && (
-              <option value="">
-                {optionsLoading ? "Loading options…" : "No options available"}
-              </option>
-            )}
-            {options.map((name) => (
-              <option value={name} key={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            className="button-primary"
-            disabled={optionsLoading || Boolean(optionsError) || !selected || loading}
-          >
-            {loading ? "Searching…" : "Search"}
-          </button>
-        </div>
+        <form.Field name="choice" listeners={{ onChange: () => setSubmitted(null) }}>
+          {(field) => {
+            // default to the first option until the user picks one
+            const selected = field.state.value || options[0] || "";
+            return (
+              <div className="search-controls">
+                <select
+                  id={`${kind}-select`}
+                  name={field.name}
+                  value={selected}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  onBlur={field.handleBlur}
+                  disabled={optionsLoading || Boolean(optionsError) || !options.length}
+                >
+                  {!options.length && (
+                    <option value="">
+                      {optionsLoading ? "Loading options…" : "No options available"}
+                    </option>
+                  )}
+                  {options.map((name) => (
+                    <option value={name} key={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  className="button-primary"
+                  disabled={optionsLoading || Boolean(optionsError) || !selected || loading}
+                >
+                  {loading ? "Searching…" : "Search"}
+                </button>
+              </div>
+            );
+          }}
+        </form.Field>
       </form>
       {optionsLoading && (
         <p role="status" className="search-hint">
@@ -134,8 +143,8 @@ function SearchPanel({ kind }: { kind: SearchKind }) {
       {result && !error && (
         <div className="search-results">
           <p role="status" className="result-count">
-            <strong>{result.count}</strong> cached Pokémon found for{" "}
-            <strong>{result.value}</strong>.
+            <strong>{result.count}</strong> cached Pokémon found for <strong>{result.value}</strong>
+            .
           </p>
           <p className="search-hint">Scope: {result.scope}</p>
           {result.pokemon.length ? (

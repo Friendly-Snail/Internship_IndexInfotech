@@ -1,12 +1,14 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import { useForm, useSelector } from "@tanstack/react-form";
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { errorMessage, hasStatus } from "#/lib/api-errors";
 import { authClient } from "#/lib/auth-client";
 import { client, orpc } from "#/orpc/client";
-import { pokemonIdentifier } from "#/validation/fight";
+import type { z } from "zod";
+import { visibleFormError } from "#/lib/form-errors";
+import { accountForm, pokedexAddForm } from "#/validation/forms";
 
 export const Route = createFileRoute("/pokedex")({ component: PokedexPage });
 
@@ -37,15 +39,12 @@ function unwrap(result: { error: { message?: string; status: number } | null }) 
   }
 }
 
+type AccountValues = z.input<typeof accountForm>;
+
 function PokedexPage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [pokemon, setPokemon] = useState("");
 
   const trainerQuery = useQuery(trainerOptions);
   const trainer = trainerQuery.data ?? null;
@@ -80,14 +79,53 @@ function PokedexPage() {
           : "The response was interrupted. Refresh your session or Pokedex before trying again; the change may have completed.",
       );
     },
-    onSettled: () => setPassword(""),
   });
   const busy = operation.isPending;
+
+  // both forms validate on mount and on change so canSubmit always reflects the inputs
+  const authForm = useForm({
+    defaultValues: { mode: "login", name: "", email: "", password: "" } as AccountValues,
+    validators: { onMount: accountForm, onChange: accountForm },
+    onSubmit: ({ value }) =>
+      run(async () => {
+        const { mode, name, email, password } = accountForm.parse(value);
+        try {
+          if (mode === "signup") unwrap(await authClient.signUp.email({ name, email, password }));
+          else unwrap(await authClient.signIn.email({ email, password }));
+        } finally {
+          authForm.setFieldValue("password", "");
+        }
+        // start fresh for the next sign-in after a logout, keeping the email and mode
+        authForm.reset({ ...value, password: "" }, { keepDefaultValues: true });
+        void authForm.validate("mount");
+        await syncSession();
+        return "You’re signed in. Welcome to your Pokedex.";
+      }),
+  });
+  const mode = useSelector(authForm.store, (state) => state.values.mode);
+  const canAuthenticate = useSelector(authForm.store, (state) => state.canSubmit);
+  const authError = useSelector(authForm.store, visibleFormError);
+
+  const addForm = useForm({
+    defaultValues: { pokemon: "" },
+    validators: { onMount: pokedexAddForm, onChange: pokedexAddForm },
+    onSubmit: ({ value }) =>
+      run(async () => {
+        await client.pokedex.add(pokedexAddForm.parse(value));
+        addForm.reset();
+        void addForm.validate("mount");
+        await syncSession();
+        return "Pokémon added to your Pokedex.";
+      }),
+  });
+  const canAdd = useSelector(addForm.store, (state) => state.canSubmit);
+  const addError = useSelector(addForm.store, visibleFormError);
+
   const loading = !busy && (trainerQuery.isFetching || pokedexQuery.isFetching);
   const collection = pokedexQuery.isFetching ? undefined : pokedexQuery.data;
   const readFailure = trainerQuery.error ?? pokedexQuery.error;
   const shownError =
-    error || (!busy && !loading && readFailure
+    error || authError || addError || (!busy && !loading && readFailure
       ? errorMessage(readFailure, "Could not reach the API. Please try again.")
       : "");
 
@@ -106,38 +144,18 @@ function PokedexPage() {
     if (!busy) operation.mutate(action);
   }
 
+  function switchMode(next: AccountValues["mode"]) {
+    authForm.setFieldValue("mode", next);
+    // clearing the password also checks the form again under the new mode
+    authForm.setFieldValue("password", "");
+    setError("");
+  }
+
   function refresh() {
     if (busy) return;
     setError("");
     void syncSession().catch(() => {
       // the failed query shows its own error
-    });
-  }
-
-  function authenticate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    run(async () => {
-      if (mode === "signup")
-        unwrap(await authClient.signUp.email({ name: name.trim(), email: email.trim(), password }));
-      else unwrap(await authClient.signIn.email({ email: email.trim(), password }));
-      setPassword("");
-      await syncSession();
-      return "You’re signed in. Welcome to your Pokedex.";
-    });
-  }
-
-  function add(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const parsed = pokemonIdentifier.safeParse(pokemon);
-    if (!parsed.success) {
-      setError("Enter a Pokémon name or positive ID.");
-      return;
-    }
-    run(async () => {
-      await client.pokedex.add({ pokemon: parsed.data });
-      setPokemon("");
-      await syncSession();
-      return "Pokémon added to your Pokedex.";
     });
   }
 
@@ -187,18 +205,31 @@ function PokedexPage() {
               </button>
             </div>
           </div>
-          <form className="pokemon-search" onSubmit={add} noValidate>
+          <form
+            className="pokemon-search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void addForm.handleSubmit();
+            }}
+            noValidate
+          >
             <label htmlFor="owned-pokemon">Add a Pokémon by name or ID</label>
             <div className="search-controls">
-              <input
-                id="owned-pokemon"
-                value={pokemon}
-                onChange={(event) => setPokemon(event.target.value)}
-                placeholder="e.g. pikachu or 25"
-                disabled={busy}
-                maxLength={255}
-              />
-              <button className="button-primary" disabled={busy} type="submit">
+              <addForm.Field name="pokemon">
+                {(field) => (
+                  <input
+                    id="owned-pokemon"
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder="e.g. pikachu or 25"
+                    disabled={busy}
+                    maxLength={255}
+                  />
+                )}
+              </addForm.Field>
+              <button className="button-primary" disabled={busy || !canAdd} type="submit">
                 Add Pokémon
               </button>
             </div>
@@ -269,11 +300,7 @@ function PokedexPage() {
               className="button-secondary"
               aria-pressed={mode === "login"}
               disabled={busy}
-              onClick={() => {
-                setMode("login");
-                setPassword("");
-                setError("");
-              }}
+              onClick={() => switchMode("login")}
             >
               Log in
             </button>
@@ -281,57 +308,82 @@ function PokedexPage() {
               className="button-secondary"
               aria-pressed={mode === "signup"}
               disabled={busy}
-              onClick={() => {
-                setMode("signup");
-                setPassword("");
-                setError("");
-              }}
+              onClick={() => switchMode("signup")}
             >
               Create account
             </button>
           </div>
           <h2>{mode === "login" ? "Welcome back" : "Meet your new Pokedex"}</h2>
-          <form onSubmit={authenticate} className="auth-form">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void authForm.handleSubmit();
+            }}
+            className="auth-form"
+            noValidate
+          >
             {mode === "signup" && (
-              <label>
-                Trainer name
-                <input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  required
-                  autoComplete="name"
-                  disabled={busy}
-                />
-              </label>
+              <authForm.Field name="name">
+                {(field) => (
+                  <label>
+                    Trainer name
+                    <input
+                      name={field.name}
+                      value={field.state.value}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      onBlur={field.handleBlur}
+                      required
+                      autoComplete="name"
+                      disabled={busy}
+                    />
+                  </label>
+                )}
+              </authForm.Field>
             )}
-            <label>
-              Email
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                autoComplete="email"
-                disabled={busy}
-              />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                minLength={mode === "signup" ? 8 : undefined}
-                maxLength={128}
-                autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                disabled={busy}
-              />
-            </label>
+            <authForm.Field name="email">
+              {(field) => (
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                    autoComplete="email"
+                    disabled={busy}
+                  />
+                </label>
+              )}
+            </authForm.Field>
+            <authForm.Field name="password">
+              {(field) => (
+                <label>
+                  Password
+                  <input
+                    type="password"
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                    minLength={mode === "signup" ? 8 : undefined}
+                    maxLength={128}
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                    disabled={busy}
+                  />
+                </label>
+              )}
+            </authForm.Field>
             {mode === "signup" && (
               <p className="search-hint">Use a password with at least 8 characters.</p>
             )}
-            <button className="button-primary" disabled={busy} type="submit">
+            <button
+              className="button-primary"
+              disabled={busy || !canAuthenticate}
+              type="submit"
+            >
               {mode === "signup" ? "Create account" : "Log in"}
             </button>
           </form>
