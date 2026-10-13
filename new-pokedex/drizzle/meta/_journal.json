@@ -1,0 +1,97 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790338763262,
+      "tag": "0000_fantastic_hammerhead",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790662749082,
+      "tag": "0001_hard_mikhail_rasputin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790667552705,
+      "tag": "0002_needy_kitty_pryde",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790667557188,
+      "tag": "0003_crazy_longshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790670222321,
+      "tag": "0004_white_prima",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790670324903,
+      "tag": "0005_puzzling_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790678442797,
+      "tag": "0006_abandoned_the_enforcers",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790935200000,
+      "tag": "0007_fixed_pokemon_stats",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790940000000,
+      "tag": "0008_team_only_battles",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790944200000,
+      "tag": "0009_resource_list_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790946900000,
+      "tag": "0010_better_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790992477456,
+      "tag": "0011_pokedex_ownership",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791551598338,
+      "tag": "0012_thin_fenris",
+      "breakpoints": true
+    }
+  ]
+}

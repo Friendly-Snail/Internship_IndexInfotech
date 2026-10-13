@@ -1,0 +1,24 @@
+# a separate project name keeps this stack and its volume apart from the original pokedex stack
+name: new-pokedex
+
+services:
+  postgres:
+    image: postgres:17.11-bookworm
+    restart: unless-stopped
+    env_file:
+      - .env.postgres
+    # the app connects through this host port
+    # 5433 avoids the usual local PostgreSQL port, 5432.
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+volumes:
+  postgres_data:
