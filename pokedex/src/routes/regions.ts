@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import type { AppDatabase } from "../db/types";
+import type { db } from "../db";
 import type { PokemonService } from "../services/pokemon";
 import { pokemon, pokemonEncounter, encounterArea } from "../db/schema/pokemon";
 
@@ -17,7 +17,7 @@ function normalizeIdentifier(value: string | undefined): string {
 }
 
 /** List regions and search cached Pokemon relative to /api/regions. */
-export function createRegionRoutes(database: AppDatabase, service: PokemonService) {
+export function createRegionRoutes(database: typeof db, service: PokemonService) {
   const routes = new Hono();
   routes.get("/", async (c) => {
     const names = await service.getResourceNames("region");

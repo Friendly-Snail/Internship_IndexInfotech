@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { HTTPError, NetworkError, TimeoutError } from "ky";
 import type { Auth } from "./auth";
-import type { AppDatabase } from "./db/types";
+import type { db } from "./db";
 import type { PokemonService } from "./services/pokemon";
 import { createAuthRoutes } from "./routes/auth";
 import { createDocsRoutes } from "./routes/docs";
@@ -21,7 +21,7 @@ import { createPokemonRoutes } from "./routes/pokemon";
  * @param service - Shared Pokemon cache and PokeAPI helpers
  * @returns The Hono application ready to receive requests
  */
-export function createApp(auth: Auth, database: AppDatabase, service: PokemonService) {
+export function createApp(auth: Auth, database: typeof db, service: PokemonService) {
   const app = new Hono();
   // mount each router under its resource; paths inside routers stay relative
   app.route("/", createDiscoveryRoutes());

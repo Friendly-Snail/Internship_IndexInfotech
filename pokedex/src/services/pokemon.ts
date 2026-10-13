@@ -401,4 +401,5 @@ export function createPokemonService() {
   return { findOrCachePokemon, getResourceNames, getTypeFromPokeApi };
 }
 
+// typeof describes the factory function; ReturnType extracts the service it returns.
 export type PokemonService = ReturnType<typeof createPokemonService>;

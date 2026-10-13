@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { battleHistory, battleParticipant } from "../db/schema/pokemon";
-import type { AppDatabase } from "../db/types";
+import type { db } from "../db";
 import type { PokemonService } from "../services/pokemon";
 import type { CachedPokemon, BattleScore } from "../types/pokemon";
 import { fightBodySchema } from "../validation/fight";
@@ -16,7 +16,7 @@ import { toUnixSeconds } from "../utils/timestamps";
  * @param service - Shared Pokemon lookup helpers.
  * @returns Public POST /api/battles/fight and GET /api/battles routes.
  */
-export function createBattleRoutes(database: AppDatabase, service: PokemonService) {
+export function createBattleRoutes(database: typeof db, service: PokemonService) {
   const routes = new Hono();
   const { findOrCachePokemon } = service;
   // database rows contain extra cached information that an api caller does not necessarily need

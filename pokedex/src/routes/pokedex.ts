@@ -1,17 +1,14 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { and, asc, eq } from "drizzle-orm";
-import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
+import type { db } from "../db";
 import { z } from "zod";
 import type { Auth } from "../auth";
-import * as schema from "../db/schema/pokemon";
 import { pokedex, pokemon } from "../db/schema/pokemon";
 import { pokemonIdentifier } from "../validation/fight";
 
-type OwnershipDatabase = Pick<
-  PgDatabase<PgQueryResultHKT, typeof schema>,
-  "select" | "insert" | "delete"
->;
+// infer the configured database methods while exposing only what ownership needs
+type OwnershipDatabase = Pick<typeof db, "select" | "insert" | "delete">;
 type PokemonLoader = (identifier: string) => Promise<{ id: number; name: string }>;
 
 export const addPokemonBody = z.strictObject({ pokemon: pokemonIdentifier });

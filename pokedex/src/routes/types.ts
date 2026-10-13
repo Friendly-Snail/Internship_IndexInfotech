@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import type { AppDatabase } from "../db/types";
+import type { db } from "../db";
 import type { PokemonService } from "../services/pokemon";
 import { pokemon, pokemonType } from "../db/schema/pokemon";
 
@@ -17,7 +17,7 @@ function normalizeIdentifier(value: string | undefined): string {
 }
 
 /** List types and search cached Pokemon relative to /api/types. */
-export function createTypeRoutes(database: AppDatabase, service: PokemonService) {
+export function createTypeRoutes(database: typeof db, service: PokemonService) {
   const routes = new Hono();
   routes.get("/", async (c) => {
     const names = await service.getResourceNames("type");

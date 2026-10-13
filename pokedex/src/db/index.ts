@@ -8,4 +8,5 @@ if (!databaseUrl) {
   );
 }
 
+// Drizzle infers this object's driver and schema types; consumers use typeof db
 export const db = drizzle({ connection: { url: databaseUrl }, schema });
