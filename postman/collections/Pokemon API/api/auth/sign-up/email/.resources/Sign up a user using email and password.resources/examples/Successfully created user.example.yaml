@@ -36,14 +36,14 @@ response:
       {
         "user": {
           "id": "string",
-          "email": "hG2LSvkCjv78KOP@bJyMFJoFgihqdniXOzm.jtmq",
+          "email": "2w7Ob2k@XIeCnKUKfhQXrXufAONABXaSFDtxRfGB.mf",
           "name": "string",
-          "emailVerified": true,
-          "createdAt": "1988-09-15T10:19:24.508Z",
-          "updatedAt": "2026-05-23T00:51:00.345Z",
-          "image": "http://DwFTXGCOyqFcYblOHfyJ.yaC9FBjYQH5OzC8I.jHSMLLp3Cn48EE,PITMPyEzgTsFTuXU02KVpp"
+          "emailVerified": false,
+          "createdAt": "1972-09-16T18:35:56.028Z",
+          "updatedAt": "2020-01-14T19:54:47.626Z",
+          "image": null
         },
-        "token": null
+        "token": "string"
       }
     $type: |-
       {

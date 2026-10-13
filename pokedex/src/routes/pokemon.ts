@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { AppDatabase } from "../db/types";
+import type { db } from "../db";
 import type { PokemonService } from "../services/pokemon";
 import { pokemonIdentifier } from "../validation/fight";
 import {
@@ -15,7 +15,7 @@ import {
  * @param service - Shared Pokemon, type-chart, and resource-list helpers.
  * @returns Relative /:identifier and /:identifier/regions routes.
  */
-export function createPokemonRoutes(database: AppDatabase, service: PokemonService) {
+export function createPokemonRoutes(database: typeof db, service: PokemonService) {
   const routes = new Hono();
   const { findOrCachePokemon, getResourceNames, getTypeFromPokeApi } = service;
   // visiting one pokemon fills its region cache, including older pokemon saved before this migration
