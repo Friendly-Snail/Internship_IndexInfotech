@@ -309,19 +309,18 @@ export function createPokemonService() {
       return result;
     }, {});
 
-    // Reject incomplete upstream stats instead of inventing defaults.
+    // PokeAPI supplies integer base stats; only check that the requested stat exists.
     /**
      * Read one required base stat from the fetched Pokemon.
      *
      * @param name - PokeAPI stat name, such as special-attack.
-     * @returns A nonnegative integer base stat.
-     * @throws If the stat is missing or is not a nonnegative integer.
+     * @returns The base stat supplied by PokeAPI.
+     * @throws If the required stat is missing from the response.
      */
     function baseStat(name: string): number {
-      ///TODO this is kiiind of overkill here because we already know PokeAPI is reliable; this kind of contaminates the code base a bit
       const value = apiPokemon.stats.find((entry) => entry.stat.name === name)?.base_stat;
-      if (value === undefined || !Number.isInteger(value) || value < 0) {
-        throw new Error(`Missing or invalid ${name} stat for ${apiPokemon.name}.`);
+      if (value === undefined) {
+        throw new Error(`Missing ${name} stat for ${apiPokemon.name}.`);
       }
       return value;
     }

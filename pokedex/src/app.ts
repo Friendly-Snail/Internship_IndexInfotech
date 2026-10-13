@@ -9,9 +9,9 @@ import { createDocsRoutes } from "./routes/docs";
 import { createPokedexRoutes } from "./routes/pokedex";
 import { createDiscoveryRoutes } from "./routes/discovery";
 import { createBattleRoutes } from "./routes/battles";
-import { createTypeSearchRoutes, createRegionSearchRoutes } from "./routes/search";
+import { createTypeRoutes } from "./routes/types";
+import { createRegionRoutes } from "./routes/regions";
 import { createPokemonRoutes } from "./routes/pokemon";
-import { createTypeResourceRoutes, createRegionResourceRoutes } from "./routes/resources";
 
 /**
  * Assemble the API routes and shared error handlers using one set of dependencies
@@ -30,10 +30,8 @@ export function createApp(auth: Auth, database: AppDatabase, service: PokemonSer
   app.route("/api/pokedex", createPokedexRoutes(auth, database, service.findOrCachePokemon));
   app.route("/api/battles", createBattleRoutes(database, service));
   app.route("/api/pokemon", createPokemonRoutes(database, service));
-  app.route("/api/types", createTypeResourceRoutes(service)); // TODO fix double up
-  app.route("/api/types", createTypeSearchRoutes(database)); // TODO
-  app.route("/api/regions", createRegionResourceRoutes(service)); // TODO
-  app.route("/api/regions", createRegionSearchRoutes(database)); // TODO
+  app.route("/api/types", createTypeRoutes(database, service));
+  app.route("/api/regions", createRegionRoutes(database, service));
   // if no route above matches the requested path, return a normal HTTP 404 json response instead of an html error page
   app.notFound((c) => c.json({ error: "Not Found" }, 404));
   // route errors arrive here once; failed cache operations never look successful

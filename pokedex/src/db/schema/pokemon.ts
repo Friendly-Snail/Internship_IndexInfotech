@@ -22,7 +22,8 @@ import {
 export const pokemon = pgTable("pokemon", {
   // we deliberately reuse the pokeapi pokemon id instead of generating our own id
   // primaryKey means every row must have a unique id and gives other tables a stable value they can reference
-  ///TODO `id` isn't actually needed for primaryKey because `name` is already unique
+  // keep the stable PokeAPI id as the primary key used by related tables
+  // name is a separate unique identifier for lookups; it does not replace those id references
   id: integer("id").primaryKey(), // pokeapi pokemon id: stable external identifier
   // varchar stores text, notNull makes the value required, and unique prevents duplicate pokemon names
   name: varchar("name", { length: 255 }).notNull().unique(),

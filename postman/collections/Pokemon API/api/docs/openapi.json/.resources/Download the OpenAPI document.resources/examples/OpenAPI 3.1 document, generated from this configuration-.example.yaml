@@ -17,7 +17,8 @@ response:
     type: json
     content: |-
       {
-        "key_0": 4181
+        "key_0": 9247,
+        "key_1": true
       }
     $type: |-
       {

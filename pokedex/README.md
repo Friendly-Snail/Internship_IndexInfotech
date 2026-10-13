@@ -186,7 +186,7 @@ Neither reset requires regenerating or rerunning migrations, because the tables 
 
 ## Project organization
 
-`src/server.ts` starts Bun; `src/app.ts` assembles the route groups and handles shared errors. Endpoints are grouped by purpose in `src/routes`: battles, search, Pokemon details, resource lists, authentication, ownership, documentation, and discovery. Shared Pokemon cache helpers live in `src/services/pokemon.ts`. All application routes use the /api prefixes listed below; GET / remains the discovery endpoint.
+`src/server.ts` starts Bun; `src/app.ts` assembles the route groups and handles shared errors. Endpoints are grouped by purpose in `src/routes`: battles, types, regions, Pokemon details, authentication, ownership, documentation, and discovery. The type and region routers each include their resource list and cached search endpoints, so each resource is mounted once. Shared Pokemon cache helpers live in `src/services/pokemon.ts`. All application routes use the /api prefixes listed below; GET / remains the discovery endpoint.
 
 ## Final routes and response formats
 
