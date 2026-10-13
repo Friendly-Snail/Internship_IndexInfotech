@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { db } from "./db";
 import * as schema from "./db/schema/auth-schema";
-import { authOptions } from "./auth/config";
+import { openAPI } from "better-auth/plugins";
 
 // require explicit configuration; never use a shared fallback signing secret
 const baseURL = Bun.env.BETTER_AUTH_URL ?? "";
@@ -21,7 +21,11 @@ if (!["http:", "https:"].includes(origin.protocol) || origin.origin !== baseURL)
 
 // one configured instance shared by the running application
 export const auth = betterAuth({
-  ...authOptions,
+  basePath: "/api/auth",
+  emailAndPassword: { enabled: true },
+  plugins: [openAPI({ disableDefaultReference: true })],
+  // keep origin and CSRF checks active for cookie-based authentication
+  advanced: { disableOriginCheck: false, disableCSRFCheck: false },
   baseURL,
   secret,
   database: drizzleAdapter(db, { provider: "pg", schema, transaction: true }),
