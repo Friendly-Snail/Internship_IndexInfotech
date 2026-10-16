@@ -1,0 +1,762 @@
+{
+  "id": "e2ee3ce7-761d-4755-b867-c55931976427",
+  "prevId": "d9037985-4c45-4be4-8dd4-d94dae7ce0c2",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.battle_history": {
+      "name": "battle_history",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "battle_history_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "pokemon1_id": {
+          "name": "pokemon1_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pokemon2_id": {
+          "name": "pokemon2_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "result": {
+          "name": "result",
+          "type": "battle_result",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "decided_by": {
+          "name": "decided_by",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon1_score": {
+          "name": "pokemon1_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pokemon2_score": {
+          "name": "pokemon2_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "team1_score": {
+          "name": "team1_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "team2_score": {
+          "name": "team2_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pokemon1_multiplier": {
+          "name": "pokemon1_multiplier",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pokemon2_multiplier": {
+          "name": "pokemon2_multiplier",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fought_at": {
+          "name": "fought_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "battle_history_fought_at_idx": {
+          "name": "battle_history_fought_at_idx",
+          "columns": [
+            {
+              "expression": "fought_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "battle_history_pokemon1_idx": {
+          "name": "battle_history_pokemon1_idx",
+          "columns": [
+            {
+              "expression": "pokemon1_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "battle_history_pokemon2_idx": {
+          "name": "battle_history_pokemon2_idx",
+          "columns": [
+            {
+              "expression": "pokemon2_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "battle_history_pokemon1_id_pokemon_id_fk": {
+          "name": "battle_history_pokemon1_id_pokemon_id_fk",
+          "tableFrom": "battle_history",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon1_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "battle_history_pokemon2_id_pokemon_id_fk": {
+          "name": "battle_history_pokemon2_id_pokemon_id_fk",
+          "tableFrom": "battle_history",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon2_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.battle_participant": {
+      "name": "battle_participant",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "battle_participant_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "battle_id": {
+          "name": "battle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pokemon_id": {
+          "name": "pokemon_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_number": {
+          "name": "team_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "battle_score": {
+          "name": "battle_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_stats": {
+          "name": "total_stats",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "speed": {
+          "name": "speed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_multiplier": {
+          "name": "type_multiplier",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "battle_participant_battle_idx": {
+          "name": "battle_participant_battle_idx",
+          "columns": [
+            {
+              "expression": "battle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "battle_participant_battle_id_battle_history_id_fk": {
+          "name": "battle_participant_battle_id_battle_history_id_fk",
+          "tableFrom": "battle_participant",
+          "tableTo": "battle_history",
+          "columnsFrom": [
+            "battle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "battle_participant_pokemon_id_pokemon_id_fk": {
+          "name": "battle_participant_pokemon_id_pokemon_id_fk",
+          "tableFrom": "battle_participant",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "battle_participant_slot_unique": {
+          "name": "battle_participant_slot_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "battle_id",
+            "team_number",
+            "position"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "battle_participant_team_check": {
+          "name": "battle_participant_team_check",
+          "value": "\"battle_participant\".\"team_number\" IN (1, 2)"
+        },
+        "battle_participant_position_check": {
+          "name": "battle_participant_position_check",
+          "value": "\"battle_participant\".\"position\" BETWEEN 1 AND 4"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.encounter_area": {
+      "name": "encounter_area",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_name": {
+          "name": "location_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_name": {
+          "name": "region_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "encounter_area_region_idx": {
+          "name": "encounter_area_region_idx",
+          "columns": [
+            {
+              "expression": "region_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "encounter_area_region_name_region_name_fk": {
+          "name": "encounter_area_region_name_region_name_fk",
+          "tableFrom": "encounter_area",
+          "tableTo": "region",
+          "columnsFrom": [
+            "region_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pokemon": {
+      "name": "pokemon",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cached_at": {
+          "name": "cached_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "regions_cached_at": {
+          "name": "regions_cached_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hp": {
+          "name": "hp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attack": {
+          "name": "attack",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "defense": {
+          "name": "defense",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "special_attack": {
+          "name": "special_attack",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "special_defense": {
+          "name": "special_defense",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "speed": {
+          "name": "speed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "pokemon_name_unique": {
+          "name": "pokemon_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pokemon_element_type": {
+      "name": "pokemon_element_type",
+      "schema": "",
+      "columns": {
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pokemon_encounter": {
+      "name": "pokemon_encounter",
+      "schema": "",
+      "columns": {
+        "pokemon_id": {
+          "name": "pokemon_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area_id": {
+          "name": "area_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "pokemon_encounter_area_idx": {
+          "name": "pokemon_encounter_area_idx",
+          "columns": [
+            {
+              "expression": "area_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pokemon_encounter_pokemon_id_pokemon_id_fk": {
+          "name": "pokemon_encounter_pokemon_id_pokemon_id_fk",
+          "tableFrom": "pokemon_encounter",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pokemon_encounter_area_id_encounter_area_id_fk": {
+          "name": "pokemon_encounter_area_id_encounter_area_id_fk",
+          "tableFrom": "pokemon_encounter",
+          "tableTo": "encounter_area",
+          "columnsFrom": [
+            "area_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pokemon_encounter_pokemon_id_area_id_pk": {
+          "name": "pokemon_encounter_pokemon_id_area_id_pk",
+          "columns": [
+            "pokemon_id",
+            "area_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pokemon_type": {
+      "name": "pokemon_type",
+      "schema": "",
+      "columns": {
+        "pokemon_id": {
+          "name": "pokemon_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_name": {
+          "name": "type_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "pokemon_type_name_idx": {
+          "name": "pokemon_type_name_idx",
+          "columns": [
+            {
+              "expression": "type_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pokemon_type_pokemon_id_pokemon_id_fk": {
+          "name": "pokemon_type_pokemon_id_pokemon_id_fk",
+          "tableFrom": "pokemon_type",
+          "tableTo": "pokemon",
+          "columnsFrom": [
+            "pokemon_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pokemon_type_type_name_pokemon_element_type_name_fk": {
+          "name": "pokemon_type_type_name_pokemon_element_type_name_fk",
+          "tableFrom": "pokemon_type",
+          "tableTo": "pokemon_element_type",
+          "columnsFrom": [
+            "type_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pokemon_type_pokemon_id_type_name_pk": {
+          "name": "pokemon_type_pokemon_id_type_name_pk",
+          "columns": [
+            "pokemon_id",
+            "type_name"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "pokemon_type_slot_unique": {
+          "name": "pokemon_type_slot_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "pokemon_id",
+            "slot"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.region": {
+      "name": "region",
+      "schema": "",
+      "columns": {
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.type_matchup": {
+      "name": "type_matchup",
+      "schema": "",
+      "columns": {
+        "attacking_type": {
+          "name": "attacking_type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "defending_type": {
+          "name": "defending_type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "multiplier": {
+          "name": "multiplier",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "type_matchup_attacking_type_pokemon_element_type_name_fk": {
+          "name": "type_matchup_attacking_type_pokemon_element_type_name_fk",
+          "tableFrom": "type_matchup",
+          "tableTo": "pokemon_element_type",
+          "columnsFrom": [
+            "attacking_type"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "type_matchup_defending_type_pokemon_element_type_name_fk": {
+          "name": "type_matchup_defending_type_pokemon_element_type_name_fk",
+          "tableFrom": "type_matchup",
+          "tableTo": "pokemon_element_type",
+          "columnsFrom": [
+            "defending_type"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "type_matchup_attacking_type_defending_type_pk": {
+          "name": "type_matchup_attacking_type_defending_type_pk",
+          "columns": [
+            "attacking_type",
+            "defending_type"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.battle_result": {
+      "name": "battle_result",
+      "schema": "public",
+      "values": [
+        "POKEMON1_WIN",
+        "POKEMON2_WIN",
+        "TIE",
+        "TEAM1_WIN",
+        "TEAM2_WIN"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
