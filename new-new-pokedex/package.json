@@ -21,7 +21,7 @@
     "@orpc/client": "beta",
     "@orpc/json-schema": "beta",
     "@orpc/openapi": "beta",
-    "@orpc/server": "^1.15.7",
+    "@orpc/server": "beta",
     "@orpc/tanstack-query": "beta",
     "@orpc/zod": "beta",
     "@t3-oss/env-core": "^0.13.10",

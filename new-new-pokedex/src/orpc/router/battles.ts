@@ -10,21 +10,7 @@ import {
 } from "../utils/battles";
 import { ORPCError } from "@orpc/server";
 import { battleHistory, battleParticipant } from "#/db/schema/pokemon";
-
-const pokemonIdentifier = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .min(1, "Provide a pokemon name or id")
-  .max(255, "Pokemon identifier is too long")
-  .regex(
-    /^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*|[1-9][0-9]*)$/,
-    "Use a pokemon name or positive numeric id",
-  )
-  .refine(
-    (value) => !/^[0-9]+$/.test(value) || Number.isSafeInteger(Number(value)),
-    "Pokemon id is too large",
-  );
+import { pokemonIdentifier } from "../utils/pokemon";
 
 const team = z
   .array(z.object({ pokemonIdentifier }))

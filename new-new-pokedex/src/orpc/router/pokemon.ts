@@ -1,8 +1,12 @@
 import z from "zod";
 import { publicProcedure } from "../procedures";
-import { pokemonIdentifier } from "./battles";
 import { battleBonus, findOrCachePokemon, typeMultiplierAgainstTypes } from "../utils/battles";
-import { getResourceNames, getTypeFromPokeApi, incomingMultiplier } from "../utils/pokemon";
+import {
+  getResourceNames,
+  getTypeFromPokeApi,
+  incomingMultiplier,
+  pokemonIdentifier,
+} from "../utils/pokemon";
 
 export const regions = publicProcedure
   .input(z.object({ pokemonId: pokemonIdentifier }))
