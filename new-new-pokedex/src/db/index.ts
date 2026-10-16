@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/node-postgres'
+import { drizzle } from "drizzle-orm/bun-sql";
+import * as schema from "./schema";
 
-import * as schema from './schema.ts'
-
-export const db = drizzle(process.env.DATABASE_URL!, { schema })
+// Drizzle infers this object's driver and schema types; consumers use typeof db
+export const db = drizzle({ connection: { url: process.env.DATABASE_URL }, schema });
