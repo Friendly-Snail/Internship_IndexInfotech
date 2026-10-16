@@ -4,15 +4,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "#/orpc/client";
 import { authClient } from "#/lib/auth-client";
-import { pokemonIdentifier } from "#/orpc/utils/pokemon";
+import { pokemonIdentifier } from "#/orpc/schema";
+
 export const Route = createFileRoute("/pokedex")({ component: PokedexPage });
+
 function PokedexPage() {
   const session = authClient.useSession();
   const trainer = session.data?.user;
   const queryClient = useQueryClient();
   // User-specific keys prevent one trainer's data from appearing in another session.
   const collectionKey = [...orpc.pokedex.pokedex.key(), trainer?.id];
-  const query = useQuery({ ...orpc.pokedex.pokedex.queryOptions({ enabled: Boolean(trainer), retry: false, queryKey: collectionKey }) });
+
+  const query = useQuery({
+    ...orpc.pokedex.pokedex.queryOptions({
+      enabled: Boolean(trainer),
+      retry: false,
+      queryKey: collectionKey,
+    }),
+  });
+
   const collection = trainer && !query.error ? query.data : undefined;
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -22,13 +32,33 @@ function PokedexPage() {
   const [password, setPassword] = useState("");
   const [pokemon, setPokemon] = useState("");
   const invalidate = () => queryClient.invalidateQueries({ queryKey: orpc.pokedex.key() });
-  const fail = (failure: Error) => { setMessage(""); setError(failure.message); };
-  const caught = useMutation(orpc.pokedex.catchPokemon.mutationOptions({
-    onSuccess: async () => { setPokemon(""); setError(""); setMessage("Pokémon added to your Pokedex."); await invalidate(); }, onError: fail, retry: false,
-  }));
-  const remove = useMutation(orpc.pokedex.killPokemon.mutationOptions({
-    onSuccess: async () => { setError(""); setMessage("Pokémon removed from your Pokedex."); await invalidate(); }, onError: fail, retry: false,
-  }));
+  const fail = (failure: Error) => {
+    setMessage("");
+    setError(failure.message);
+  };
+  const caught = useMutation(
+    orpc.pokedex.catchPokemon.mutationOptions({
+      onSuccess: async () => {
+        setPokemon("");
+        setError("");
+        setMessage("Pokémon added to your Pokedex.");
+        await invalidate();
+      },
+      onError: fail,
+      retry: false,
+    }),
+  );
+  const remove = useMutation(
+    orpc.pokedex.killPokemon.mutationOptions({
+      onSuccess: async () => {
+        setError("");
+        setMessage("Pokémon removed from your Pokedex.");
+        await invalidate();
+      },
+      onError: fail,
+      retry: false,
+    }),
+  );
   async function clearPrivateData() {
     await queryClient.cancelQueries({ queryKey: orpc.pokedex.key() });
     queryClient.removeQueries({ queryKey: orpc.pokedex.key() });
@@ -37,35 +67,73 @@ function PokedexPage() {
   }
   const account = useMutation({
     mutationFn: async () => {
-      const result = mode === "signup"
-        ? await authClient.signUp.email({ name: name.trim(), email: email.trim(), password })
-        : await authClient.signIn.email({ email: email.trim(), password });
+      const result =
+        mode === "signup"
+          ? await authClient.signUp.email({ name: name.trim(), email: email.trim(), password })
+          : await authClient.signIn.email({ email: email.trim(), password });
       if (result.error) throw new Error(result.error.message || "Sign-in failed.");
     },
-    onSuccess: async () => { await clearPrivateData(); await session.refetch(); setError(""); setMessage("You’re signed in."); },
-    onError: fail, onSettled: () => setPassword(""), retry: false,
+    onSuccess: async () => {
+      await clearPrivateData();
+      await session.refetch();
+      setError("");
+      setMessage("You’re signed in.");
+    },
+    onError: fail,
+    onSettled: () => setPassword(""),
+    retry: false,
   });
   const logout = useMutation({
-    mutationFn: async () => { const result = await authClient.signOut(); if (result.error) throw new Error(result.error.message || "Sign-out failed."); },
-    onSuccess: async () => { await clearPrivateData(); await session.refetch(); setError(""); setMessage("You’re signed out."); }, onError: fail, retry: false,
+    mutationFn: async () => {
+      const result = await authClient.signOut();
+      if (result.error) throw new Error(result.error.message || "Sign-out failed.");
+    },
+    onSuccess: async () => {
+      await clearPrivateData();
+      await session.refetch();
+      setError("");
+      setMessage("You’re signed out.");
+    },
+    onError: fail,
+    retry: false,
   });
   const busy = account.isPending || logout.isPending || caught.isPending || remove.isPending;
   const loading = session.isPending || (Boolean(trainer) && query.isPending);
-  async function refresh() { setError(""); await session.refetch(); if (trainer) await query.refetch(); }
-  function authenticate(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!busy) { setError(""); setMessage(""); account.mutate(); } }
+  async function refresh() {
+    setError("");
+    await session.refetch();
+    if (trainer) await query.refetch();
+  }
+  function authenticate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!busy) {
+      setError("");
+      setMessage("");
+      account.mutate();
+    }
+  }
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
     const parsed = pokemonIdentifier.safeParse(pokemon);
-    if (!parsed.success) { setError("Enter a Pokémon name or positive ID."); return; }
-    setError(""); setMessage(""); caught.mutate({ pokemon: parsed.data });
+    if (!parsed.success) {
+      setError("Enter a Pokémon name or positive ID.");
+      return;
+    }
+    setError("");
+    setMessage("");
+    caught.mutate({ pokemon: parsed.data });
   }
   return (
     <section className="feature-page" aria-labelledby="page-title">
       <p className="eyebrow">YOUR POKEDEX</p>
       <h1 id="page-title">Make it your own</h1>
       <p className="page-description">Sign in to keep your personal Pokémon collection.</p>
-      {(query.error || session.error) && <p role="alert" className="search-error">{query.error?.message || session.error?.message}</p>}
+      {(query.error || session.error) && (
+        <p role="alert" className="search-error">
+          {query.error?.message || session.error?.message}
+        </p>
+      )}
       {error && (
         <div className="search-error" role="alert">
           {error}
@@ -92,13 +160,7 @@ function PokedexPage() {
               <button className="button-secondary" disabled={busy} onClick={() => void refresh()}>
                 Refresh collection
               </button>
-              <button
-                className="button-secondary"
-                disabled={busy}
-                onClick={() =>
-                  logout.mutate()
-                }
-              >
+              <button className="button-secondary" disabled={busy} onClick={() => logout.mutate()}>
                 Log out
               </button>
             </div>

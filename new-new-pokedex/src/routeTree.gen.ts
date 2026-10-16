@@ -14,7 +14,6 @@ import { Route as BattlesRouteImport } from './routes/battles'
 import { Route as PokedexRouteImport } from './routes/pokedex'
 import { Route as PokemonRouteImport } from './routes/pokemon'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as UiRouteImport } from './routes/ui'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
@@ -44,11 +43,6 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UiRoute = UiRouteImport.update({
-  id: '/ui',
-  path: '/ui',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
   id: '/api/$',
   path: '/api/$',
@@ -71,7 +65,6 @@ export interface FileRoutesByFullPath {
   '/pokedex': typeof PokedexRoute
   '/pokemon': typeof PokemonRoute
   '/search': typeof SearchRoute
-  '/ui': typeof UiRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -82,7 +75,6 @@ export interface FileRoutesByTo {
   '/pokedex': typeof PokedexRoute
   '/pokemon': typeof PokemonRoute
   '/search': typeof SearchRoute
-  '/ui': typeof UiRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -94,7 +86,6 @@ export interface FileRoutesById {
   '/pokedex': typeof PokedexRoute
   '/pokemon': typeof PokemonRoute
   '/search': typeof SearchRoute
-  '/ui': typeof UiRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -107,7 +98,6 @@ export interface FileRouteTypes {
     | '/pokedex'
     | '/pokemon'
     | '/search'
-    | '/ui'
     | '/api/$'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -118,7 +108,6 @@ export interface FileRouteTypes {
     | '/pokedex'
     | '/pokemon'
     | '/search'
-    | '/ui'
     | '/api/$'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -129,7 +118,6 @@ export interface FileRouteTypes {
     | '/pokedex'
     | '/pokemon'
     | '/search'
-    | '/ui'
     | '/api/$'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -141,7 +129,6 @@ export interface RootRouteChildren {
   PokedexRoute: typeof PokedexRoute
   PokemonRoute: typeof PokemonRoute
   SearchRoute: typeof SearchRoute
-  UiRoute: typeof UiRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
@@ -184,13 +171,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ui': {
-      id: '/ui'
-      path: '/ui'
-      fullPath: '/ui'
-      preLoaderRoute: typeof UiRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/$': {
       id: '/api/$'
       path: '/api/$'
@@ -221,7 +201,6 @@ const rootRouteChildren: RootRouteChildren = {
   PokedexRoute: PokedexRoute,
   PokemonRoute: PokemonRoute,
   SearchRoute: SearchRoute,
-  UiRoute: UiRoute,
   ApiSplatRoute: ApiSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,

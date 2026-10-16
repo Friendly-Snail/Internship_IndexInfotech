@@ -1,6 +1,5 @@
 import { protectedProcedure } from "../procedures";
 
-import { z } from "zod";
 import {
   decideTeamResult,
   displayPokemon,
@@ -8,16 +7,9 @@ import {
   scoreTeams,
   summarizeTeam,
 } from "../utils/battles";
+import { fightBodySchema } from "../schema";
 import { ORPCError } from "@orpc/server";
 import { battleHistory, battleParticipant } from "#/db/schema/pokemon";
-import { pokemonIdentifier } from "../utils/pokemon";
-
-const team = z
-  .array(z.object({ pokemonIdentifier }))
-  .min(1, "choose at least one pokemon")
-  .max(4, "choose no more than four pokemon");
-
-const fightBodySchema = z.object({ team1: team, team2: team });
 
 export const fight = protectedProcedure
   .input(fightBodySchema)
@@ -119,55 +111,55 @@ export const fight = protectedProcedure
     };
   });
 
-// export const battles = protectedProcedure.handler(async ({ context }) => {
-//   const battles = await context.db.query.battleHistory.findMany({
-//     orderBy: (battle, { desc }) => [desc(battle.foughtAt), desc(battle.id)],
-//     with: {
-//       participants: {
-//         orderBy: (participant, { asc }) => [asc(participant.teamNumber), asc(participant.position)],
-//         with: { pokemon: { columns: { id: true, name: true } } },
-//       },
-//     },
-//   });
-//   // group the saved participants by battle so each history row has two ordered teams
-//   return {
-//     count: battles.length,
-//     battles: battles.map((battle) => {
-//       const rows = battle.participants;
-//       /**
-//        * Build ordered history entries for participants on one saved team.
-//        *
-//        * @param teamNumber - The team number to select.
-//        * @returns The selected participants with their saved battle snapshots.
-//        */
-//       const members = (teamNumber: number) =>
-//         rows
-//           .filter((row) => row.teamNumber === teamNumber)
-//           .map((row) => ({
-//             position: row.position,
-//             id: row.pokemon.id,
-//             name: row.pokemon.name,
-//             battleScore: row.battleScore,
-//             totalStats: row.totalStats,
-//             speed: row.speed,
-//             typeMultiplier: row.typeMultiplier,
-//           }));
-//       return {
-//         id: battle.id,
-//         // expose the saved instant as whole Unix seconds, independent of the server time zone
-//         // converting the number to regular date will happen in the frontend
-//         foughtAt: battle.foughtAt.getUTCSeconds(),
-//         result: battle.result,
-//         decidedBy: battle.decidedBy,
-//         team1: {
-//           score: battle.team1Score,
-//           pokemon: members(1),
-//         },
-//         team2: {
-//           score: battle.team2Score,
-//           pokemon: members(2),
-//         },
-//       };
-//     }),
-//   };
-// });
+export const battles = protectedProcedure.handler(async ({ context }) => {
+  const battles = await context.db.query.battleHistory.findMany({
+    orderBy: (battle, { desc }) => [desc(battle.foughtAt), desc(battle.id)],
+    with: {
+      participants: {
+        orderBy: (participant, { asc }) => [asc(participant.teamNumber), asc(participant.position)],
+        with: { pokemon: { columns: { id: true, name: true } } },
+      },
+    },
+  });
+  // group the saved participants by battle so each history row has two ordered teams
+  return {
+    count: battles.length,
+    battles: battles.map((battle) => {
+      const rows = battle.participants;
+      /**
+       * Build ordered history entries for participants on one saved team.
+       *
+       * @param teamNumber - The team number to select.
+       * @returns The selected participants with their saved battle snapshots.
+       */
+      const members = (teamNumber: number) =>
+        rows
+          .filter((row) => row.teamNumber === teamNumber)
+          .map((row) => ({
+            position: row.position,
+            id: row.pokemon.id,
+            name: row.pokemon.name,
+            battleScore: row.battleScore,
+            totalStats: row.totalStats,
+            speed: row.speed,
+            typeMultiplier: row.typeMultiplier,
+          }));
+      return {
+        id: battle.id,
+        // expose the saved instant as whole Unix seconds, independent of the server time zone
+        // converting the number to regular date will happen in the frontend
+        foughtAt: Math.floor(battle.foughtAt.getTime() / 1000),
+        result: battle.result,
+        decidedBy: battle.decidedBy,
+        team1: {
+          score: battle.team1Score,
+          pokemon: members(1),
+        },
+        team2: {
+          score: battle.team2Score,
+          pokemon: members(2),
+        },
+      };
+    }),
+  };
+});

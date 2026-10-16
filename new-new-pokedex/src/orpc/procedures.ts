@@ -15,11 +15,10 @@ export const baseProcedure = os.$context<ServerContext>().use(async ({ context, 
 export const publicProcedure = baseProcedure;
 
 export const protectedProcedure = baseProcedure.use(async ({ context, next }) => {
-  if (!context.reqHeaders?.get("Authorization")) {
-    throw new ORPCError("UNAUTHORIZED");
-  }
-
-  const session = await auth.api.getSession({ headers: context.reqHeaders });
+  // browsers authenticate with the better-auth session cookie, not an Authorization header
+  const session =
+    context.session ??
+    (context.reqHeaders ? await auth.api.getSession({ headers: context.reqHeaders }) : null);
 
   if (!session) throw new ORPCError("UNAUTHORIZED");
 

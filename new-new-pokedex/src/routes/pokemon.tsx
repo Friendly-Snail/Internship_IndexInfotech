@@ -3,8 +3,10 @@ import type { FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "#/orpc/client";
-import { pokemonIdentifier } from "#/orpc/utils/pokemon";
+import { pokemonIdentifier } from "#/orpc/schema";
+
 export const Route = createFileRoute("/pokemon")({ component: PokemonPage });
+
 const stats = [
   ["hp", "HP"],
   ["attack", "Attack"],
@@ -19,19 +21,33 @@ function PokemonPage() {
   const [identifier, setIdentifier] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [validationError, setValidationError] = useState("");
+
   // Fetch only the submitted identifier, not every keystroke.
-  const query = useQuery(orpc.pokemon.byId.queryOptions({ input: { pokemonId: submitted }, enabled: Boolean(submitted), retry: false }));
+  const query = useQuery(
+    orpc.pokemon.byId.queryOptions({
+      input: { pokemonId: submitted },
+      enabled: Boolean(submitted),
+      retry: false,
+    }),
+  );
+
   const pokemon = query.data;
   const loading = query.isFetching;
   const error = validationError || query.error?.message || "";
+
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const parsed = pokemonIdentifier.safeParse(identifier);
-    if (!parsed.success) { setSubmitted(""); setValidationError("Enter a Pokémon name or positive ID."); return; }
+    if (!parsed.success) {
+      setSubmitted("");
+      setValidationError("Enter a Pokémon name or positive ID.");
+      return;
+    }
     setValidationError("");
     if (submitted === parsed.data) void query.refetch();
     else setSubmitted(parsed.data);
   }
+
   return (
     <section className="feature-page" aria-labelledby="page-title">
       <p className="eyebrow">POKÉMON LOOKUP</p>

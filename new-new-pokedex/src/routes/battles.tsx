@@ -4,11 +4,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client, orpc } from "#/orpc/client";
 import { authClient } from "#/lib/auth-client";
-import { fightBodySchema } from "#/orpc/utils/pokemon";
-type BattleTeam = Awaited<ReturnType<typeof client.battles.battles>>["battles"][number]["team1"] | Awaited<ReturnType<typeof client.battles.fight>>["team1"];
-const outcomeLabel = (result: string) => result === "TIE" ? "Tie" : result === "TEAM1_WIN" ? "Team 1 wins" : "Team 2 wins";
+import { fightBodySchema } from "#/orpc/schema";
+
+type BattleTeam =
+  | Awaited<ReturnType<typeof client.battles.battles>>["battles"][number]["team1"]
+  | Awaited<ReturnType<typeof client.battles.fight>>["team1"];
+
+const outcomeLabel = (result: string) =>
+  result === "TIE" ? "Tie" : result === "TEAM1_WIN" ? "Team 1 wins" : "Team 2 wins";
+
 const formatUnixDate = (seconds: number) => new Date(seconds * 1000).toLocaleString();
+
 export const Route = createFileRoute("/battles")({ component: BattlesPage });
+
 /** Show saved/calculated participant values, including missing legacy snapshots. */
 export function TeamSummary({ team, number }: { team: BattleTeam; number: number }) {
   return (
@@ -52,12 +60,16 @@ function BattlesPage() {
   const [validationError, setValidationError] = useState("");
   const session = authClient.useSession();
   const queryClient = useQueryClient();
-  const historyQuery = useQuery(orpc.battles.battles.queryOptions({ enabled: Boolean(session.data), retry: false }));
+  const historyQuery = useQuery(
+    orpc.battles.battles.queryOptions({ enabled: Boolean(session.data), retry: false }),
+  );
   // Saving a battle makes the history query stale so it loads the new record.
-  const mutation = useMutation(orpc.battles.fight.mutationOptions({
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: orpc.battles.battles.key() }),
-    retry: false,
-  }));
+  const mutation = useMutation(
+    orpc.battles.fight.mutationOptions({
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: orpc.battles.battles.key() }),
+      retry: false,
+    }),
+  );
   const result = mutation.data;
   const fighting = mutation.isPending;
   const fightError = validationError || mutation.error?.message || "";
@@ -65,23 +77,45 @@ function BattlesPage() {
   const historyLoading = historyQuery.isFetching;
   const historyError = historyQuery.error?.message || "";
   const refreshHistory = () => historyQuery.refetch();
+
   function fight(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (fighting) return;
     mutation.reset();
-    const split = (value: string) => value.split(/[,\n]/).map((entry) => entry.trim()).filter(Boolean);
-    const convert = (value: string) => split(value).map((pokemonIdentifier) => ({ pokemonIdentifier }));
+    const split = (value: string) =>
+      value
+        .split(/[,\n]/)
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+    const convert = (value: string) =>
+      split(value).map((pokemonIdentifier) => ({ pokemonIdentifier }));
     // Use the same schema and member objects as the oRPC procedure.
     const parsed = fightBodySchema.safeParse({ team1: convert(team1), team2: convert(team2) });
-    if (!parsed.success) { setValidationError("Each team needs 1–4 Pokémon names or positive IDs."); return; }
+    if (!parsed.success) {
+      setValidationError("Each team needs 1–4 Pokémon names or positive IDs.");
+      return;
+    }
     const entries = [...parsed.data.team1, ...parsed.data.team2];
-    if (new Set(entries.map((entry) => entry.pokemonIdentifier)).size !== entries.length) { setValidationError("Use a different Pokémon in every position."); return; }
+    if (new Set(entries.map((entry) => entry.pokemonIdentifier)).size !== entries.length) {
+      setValidationError("Use a different Pokémon in every position.");
+      return;
+    }
     setValidationError("");
     mutation.mutate(parsed.data);
   }
+
   if (session.isPending) return <p role="status">Checking your session…</p>;
   if (session.error) return <p role="alert">{session.error.message}</p>;
-  if (!session.data) return <section className="feature-page"><h1>Team battles</h1><p><Link to="/pokedex">Log in or create an account</Link> to battle and view history.</p></section>;
+  if (!session.data)
+    return (
+      <section className="feature-page">
+        <h1>Team battles</h1>
+        <p>
+          <Link to="/pokedex">Log in or create an account</Link> to battle and view history.
+        </p>
+      </section>
+    );
+
   return (
     <section className="feature-page" aria-labelledby="page-title">
       <p className="eyebrow">TEAM BATTLES</p>

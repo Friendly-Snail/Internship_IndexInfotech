@@ -30,6 +30,8 @@ const handler = new OpenAPIHandler(router, {
       ],
     }),
     new OpenAPIReferenceHandlerPlugin({
+      // the sidebar links to /api/docs
+      docsPath: "/docs",
       spec: () =>
         generator.generate(router, {
           base: {
@@ -37,7 +39,7 @@ const handler = new OpenAPIHandler(router, {
               title: "ORPC Playground",
               version: "1.0.0",
             },
-            servers: [{ url: "https://api.example.com/v1" }],
+            servers: [{ url: "/api" }],
           },
         }),
     }),

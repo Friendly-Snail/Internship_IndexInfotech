@@ -4,8 +4,8 @@ import { pokemon, pokemonType } from "#/db/schema";
 import { publicProcedure } from "../procedures";
 import { getResourceNames } from "../utils/pokemon";
 
-export const all = publicProcedure.handler(async ({ context }) => {
-  const types = await getResourceNames(context.db, "type");
+export const all = publicProcedure.handler(async () => {
+  const types = await getResourceNames("type");
   return { count: types.length, types, source: "database" };
 });
 

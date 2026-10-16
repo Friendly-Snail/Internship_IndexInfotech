@@ -1,19 +1,17 @@
 import z from "zod";
 import { publicProcedure } from "../procedures";
 import { battleBonus, findOrCachePokemon, typeMultiplierAgainstTypes } from "../utils/battles";
-import {
-  getResourceNames,
-  getTypeFromPokeApi,
-  incomingMultiplier,
-  pokemonIdentifier,
-} from "../utils/pokemon";
+import { getResourceNames, getTypeFromPokeApi, incomingMultiplier } from "../utils/pokemon";
+import { pokemonIdentifier } from "../schema";
 
 export const regions = publicProcedure
   .input(z.object({ pokemonId: pokemonIdentifier }))
   .handler(async ({ input, context }) => {
     const entry = await findOrCachePokemon(input.pokemonId);
     const links = await context.db.query.pokemonEncounter.findMany({
-      where: (link, { eq }) => eq(link.pokemonId, entry.id),
+      where: {
+        pokemonId: entry.id,
+      },
       with: { area: { columns: { regionName: true } } },
     });
     return {
@@ -31,7 +29,9 @@ export const byId = publicProcedure
     const defendingCharts = await Promise.all(entry.types.map(getTypeFromPokeApi));
     // Load the cache-completion marker and related encounter areas together.
     const cachedRow = await context.db.query.pokemon.findFirst({
-      where: (row, { eq }) => eq(row.id, entry.id),
+      where: {
+        id: entry.id,
+      },
       columns: { regionsCachedAt: true },
       with: {
         encounters: { with: { area: { columns: { regionName: true } } } },

@@ -3,19 +3,17 @@ import { and, asc, eq } from "drizzle-orm";
 import { protectedProcedure } from "../procedures";
 import z from "zod";
 import { findOrCachePokemon } from "../utils/battles";
-import { ORPCError } from "@orpc/client";
+import { ORPCError } from "@orpc/server";
 
-export const pokedex = protectedProcedure
-  .input(z.object({ trainerId: z.string() }))
-  .handler(async ({ input, context }) => {
-    const entries = await context.db
-      .select({ pokemon: { id: pokemon.id, name: pokemon.name }, addedAt: pokedexTable.addedAt })
-      .from(pokedexTable)
-      .innerJoin(pokemon, eq(pokedexTable.pokemonId, pokemon.id))
-      .where(eq(pokedexTable.userId, input.trainerId))
-      .orderBy(asc(pokemon.id));
-    return { count: entries.length, entries };
-  });
+export const pokedex = protectedProcedure.handler(async ({ context }) => {
+  const entries = await context.db
+    .select({ pokemon: { id: pokemon.id, name: pokemon.name }, addedAt: pokedexTable.addedAt })
+    .from(pokedexTable)
+    .innerJoin(pokemon, eq(pokedexTable.pokemonId, pokemon.id))
+    .where(eq(pokedexTable.userId, context.session.user.id))
+    .orderBy(asc(pokemon.id));
+  return { count: entries.length, entries };
+});
 
 const pokemonIdentifier = z
   .string()
@@ -41,13 +39,13 @@ const pokemonIdentifier = z
   );
 
 export const catchPokemon = protectedProcedure
-  .input(z.object({ pokemon: pokemonIdentifier, trainerId: z.string() }))
+  .input(z.object({ pokemon: pokemonIdentifier }))
   .handler(async ({ input, context }) => {
     const cached = await findOrCachePokemon(input.pokemon);
     // the composite key handles simultaneous adds as well as repeated requests
     const [entry] = await context.db
       .insert(pokedexTable)
-      .values({ userId: input.trainerId, pokemonId: cached.id })
+      .values({ userId: context.session.user.id, pokemonId: cached.id })
       .onConflictDoNothing({ target: [pokedexTable.userId, pokedexTable.pokemonId] })
       .returning({ addedAt: pokedexTable.addedAt });
     if (!entry)
@@ -56,12 +54,15 @@ export const catchPokemon = protectedProcedure
   });
 
 export const killPokemon = protectedProcedure
-  .input(z.object({ pokemonId: z.number(), trainerId: z.string() }))
+  .input(z.object({ pokemonId: z.number().int().positive() }))
   .handler(async ({ input, context }) => {
     const [removed] = await context.db
       .delete(pokedexTable)
       .where(
-        and(eq(pokedexTable.userId, input.trainerId), eq(pokedexTable.pokemonId, input.pokemonId)),
+        and(
+          eq(pokedexTable.userId, context.session.user.id),
+          eq(pokedexTable.pokemonId, input.pokemonId),
+        ),
       )
       .returning({ pokemonId: pokedexTable.pokemonId });
     if (!removed)

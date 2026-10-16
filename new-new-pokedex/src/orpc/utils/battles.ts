@@ -22,7 +22,8 @@ import type {
   TeamTotals,
   TypeRelations,
 } from "../types";
-import ky from "ky";
+import ky, { isHTTPError } from "ky";
+import { ORPCError } from "@orpc/server";
 
 export const pokeApi = ky.create({
   // the trailing slash preserves /api/v2/ when resolving relative paths
@@ -173,7 +174,15 @@ export async function findOrCachePokemon(identifier: string): Promise<CachedPoke
   }
 
   async function getPokemonFromPokeApi(identifier: string): Promise<ApiPokemon> {
-    return pokeApi.get(`pokemon/${encodeURIComponent(identifier)}`).json<ApiPokemon>();
+    try {
+      return await pokeApi.get(`pokemon/${encodeURIComponent(identifier)}`).json<ApiPokemon>();
+    } catch (error) {
+      // surface unknown names and ids as a readable 404 instead of a generic server error
+      if (isHTTPError(error) && error.response.status === 404) {
+        throw new ORPCError("NOT_FOUND", { message: `No Pokemon found for "${identifier}".` });
+      }
+      throw error;
+    }
   }
 
   async function getTypeFromPokeApi(identifier: string): Promise<ApiType> {
