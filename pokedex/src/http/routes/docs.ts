@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { swaggerUI } from "@hono/swagger-ui";
-import type { Auth } from "../auth";
-import { createOpenApiDocument } from "../docs/openapi";
+import type { Auth } from "../../auth";
+import { createOpenApiDocument } from "../../docs/openapi";
 
 /**
  * Serve the cached OpenAPI contract and interactive Swagger UI.

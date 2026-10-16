@@ -9,7 +9,7 @@ import type {
 } from "openapi3-ts/oas31";
 import type { Auth } from "../auth";
 import { fightBodySchema, pokemonIdentifier } from "../validation/fight";
-import { addPokemonBody, removePokemonParams } from "../routes/pokedex";
+import { addPokemonBody, removePokemonParams } from "../http/routes/pokedex";
 
 type Schema = SchemaObject | ReferenceObject;
 /**

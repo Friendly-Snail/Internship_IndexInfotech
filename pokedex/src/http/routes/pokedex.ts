@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { and, asc, eq } from "drizzle-orm";
-import type { db } from "../db";
+import type { db } from "../../db";
 import { z } from "zod";
-import type { Auth } from "../auth";
-import { pokedex, pokemon } from "../db/schema/pokemon";
-import { pokemonIdentifier } from "../validation/fight";
+import type { Auth } from "../../auth";
+import { pokedex, pokemon } from "../../db/schema/pokemon";
+import { pokemonIdentifier } from "../../validation/fight";
 
 // infer the configured database methods while exposing only what ownership needs
 type OwnershipDatabase = Pick<typeof db, "select" | "insert" | "delete">;

@@ -1,12 +1,12 @@
 import { Hono } from "hono";
-import type { db } from "../db";
-import type { PokemonService } from "../services/pokemon";
-import { pokemonIdentifier } from "../validation/fight";
+import type { db } from "../../db";
+import type { PokemonService } from "../../services/pokemon";
+import { pokemonIdentifier } from "../../validation/fight";
 import {
   battleBonus,
   incomingMultiplier,
   typeMultiplierAgainstTypes,
-} from "../utils/type-matchups";
+} from "../../utils/type-matchups";
 
 /**
  * Register Pokemon detail and encounter-region handlers under /pokemon.

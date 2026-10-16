@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { battleHistory, battleParticipant } from "../db/schema/pokemon";
-import type { db } from "../db";
-import type { PokemonService } from "../services/pokemon";
-import type { CachedPokemon, BattleScore } from "../types/pokemon";
-import { fightBodySchema } from "../validation/fight";
-import { decideTeamResult, type TeamTotals } from "../utils/team-results";
-import { scoreTeams } from "../utils/team-matchups";
-import { toUnixSeconds } from "../utils/timestamps";
+import { battleHistory, battleParticipant } from "../../db/schema/pokemon";
+import type { db } from "../../db";
+import type { PokemonService } from "../../services/pokemon";
+import type { CachedPokemon, BattleScore } from "../../types/pokemon";
+import { fightBodySchema } from "../../validation/fight";
+import { decideTeamResult, type TeamTotals } from "../../utils/team-results";
+import { scoreTeams } from "../../utils/team-matchups";
+import { toUnixSeconds } from "../../utils/timestamps";
 
 /**
  * Register team fights and saved battle history.

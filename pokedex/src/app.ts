@@ -4,14 +4,14 @@ import { HTTPError, NetworkError, TimeoutError } from "ky";
 import type { Auth } from "./auth";
 import type { db } from "./db";
 import type { PokemonService } from "./services/pokemon";
-import { createAuthRoutes } from "./routes/auth";
-import { createDocsRoutes } from "./routes/docs";
-import { createPokedexRoutes } from "./routes/pokedex";
-import { createDiscoveryRoutes } from "./routes/discovery";
-import { createBattleRoutes } from "./routes/battles";
-import { createTypeRoutes } from "./routes/types";
-import { createRegionRoutes } from "./routes/regions";
-import { createPokemonRoutes } from "./routes/pokemon";
+import { createAuthRoutes } from "./http/routes/auth";
+import { createDocsRoutes } from "./http/routes/docs";
+import { createPokedexRoutes } from "./http/routes/pokedex";
+import { createDiscoveryRoutes } from "./http/routes/discovery";
+import { createBattleRoutes } from "./http/routes/battles";
+import { createTypeRoutes } from "./http/routes/types";
+import { createRegionRoutes } from "./http/routes/regions";
+import { createPokemonRoutes } from "./http/routes/pokemon";
 
 /**
  * Assemble the API routes and shared error handlers using one set of dependencies

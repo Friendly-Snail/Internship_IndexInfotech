@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { Auth } from "../auth";
+import type { Auth } from "../../auth";
 
 /**
  * Forward Better Auth requests and identify the current trainer from session cookies (yummy)

@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import type { db } from "../db";
-import type { PokemonService } from "../services/pokemon";
-import { pokemon, pokemonEncounter, encounterArea } from "../db/schema/pokemon";
+import type { db } from "../../db";
+import type { PokemonService } from "../../services/pokemon";
+import { pokemon, pokemonEncounter, encounterArea } from "../../db/schema/pokemon";
 
 // query parameters come from user input, so they may be missing, capitalized, or padded with spaces
 // normalizing them gives the rest of the program one predictable lowercase identifier to work with
