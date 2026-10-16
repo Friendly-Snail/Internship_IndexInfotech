@@ -10,14 +10,15 @@
     "test": "bun test",
     "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
-    "format": "oxfmt src test drizzle.config.ts package.json tsconfig.json .oxfmtrc.json",
-    "format:check": "oxfmt --check src test drizzle.config.ts package.json tsconfig.json .oxfmtrc.json",
-    "lint": "oxlint .",
+    "format": "bun run --bun oxfmt src test scripts drizzle.config.ts package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
+    "format:check": "bun run --bun oxfmt --check src test scripts drizzle.config.ts package.json tsconfig.json .oxfmtrc.json .oxlintrc.json",
+    "lint": "oxlint --deny-warnings src test scripts drizzle.config.ts",
     "auth:generate": "bunx --bun auth@1.7.7 generate --config ./src/auth.ts --output ./src/db/schema/auth-schema.ts --yes",
     "db:up": "docker compose up -d --wait --wait-timeout 90 postgres",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs --tail=100 postgres",
-    "db:check": "bun scripts/check-db.ts"
+    "db:check": "bun scripts/check-db.ts",
+    "check": "bun run format:check && bun run lint && bun run typecheck"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.7",
