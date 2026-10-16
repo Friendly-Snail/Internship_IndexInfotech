@@ -8,11 +8,14 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
-    "types": ["bun", "node"],
+    "types": ["bun", "node", "vite/client"],
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
 }
