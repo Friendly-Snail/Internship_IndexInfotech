@@ -3,7 +3,7 @@ import { z } from "zod";
 import { databaseEnv } from "./env/database";
 
 // server configuration is validated once when this module is imported
-// bun loads .env automatically and exposes its values through process.env as well
+// databaseEnv loads local configuration before either schema reads process.env
 export const env = createEnv({
   extends: [databaseEnv],
   server: {

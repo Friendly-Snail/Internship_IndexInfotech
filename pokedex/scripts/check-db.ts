@@ -1,19 +1,30 @@
-import { SQL } from "bun";
-import { databaseEnv } from "../src/env/database";
+import { Client } from "pg";
+import { databaseEnv } from "../src/env/database.ts";
 
-// use the same Bun SQL driver and validated URL as the application's Drizzle client
-const client = new SQL(databaseEnv.DATABASE_URL, { connectionTimeout: 10, max: 1 });
+// use the same pg driver and validated URL as the application's Drizzle pool
+// a separate client lets this short-lived command close its connection cleanly
+const client = new Client({
+  connectionString: databaseEnv.DATABASE_URL,
+  connectionTimeoutMillis: 10_000,
+});
 try {
-  const [connection] = await client`SELECT current_database() AS database`;
+  await client.connect();
+  const {
+    rows: [connection],
+  } = await client.query<{ database: string }>("SELECT current_database() AS database");
   console.log(`Connected to database: ${connection.database}`);
-  const [result] = await client`SELECT count(*)::integer AS count FROM public.pokemon`;
+  const {
+    rows: [result],
+  } = await client.query<{ count: number }>(
+    "SELECT count(*)::integer AS count FROM public.pokemon",
+  );
   console.log(`Pokemon table is readable; cached Pokemon: ${result.count}`);
 } catch {
-  // connection errors may include credentials; print troubleshooting guidance instead
+  // connection errors may include credentials; keep troubleshooting output safe
   console.error(
     "Database check failed. Check Compose health, DATABASE_URL, and bun run db:migrate.",
   );
   process.exitCode = 1;
 } finally {
-  await client.close();
+  await client.end();
 }
